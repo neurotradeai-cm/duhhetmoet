@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>+32 Telefoonnummer Scraper</title>
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icon.svg" />
+<meta name="theme-color" content="#0b1220" />
+<style>
+  :root{--bg:#0b1220;--panel:#131c2e;--line:#243247;--txt:#e6edf7;--dim:#93a4bd;--acc:#38bdf8;--ok:#22c55e;--warn:#f59e0b;--err:#ef4444}
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.45 system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt)}
+  header{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;flex-wrap:wrap;position:sticky;top:0;background:var(--bg);z-index:9}
+  h1{font-size:16px;margin:0;white-space:nowrap}
+  .grow{flex:1}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin:14px}
+  .panel h2{font-size:13px;margin:0 0 10px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+  label{display:block;font-size:11px;color:var(--dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+  input,select,textarea,button{font:inherit;color:var(--txt);background:#0d1524;border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+  textarea{min-height:66px;resize:vertical}
+  button{cursor:pointer;background:#1b2a42;border-color:#2c4160}
+  button:hover{background:#24365a}
+  button.primary{background:var(--acc);color:#04121f;border-color:var(--acc);font-weight:600}
+  button.ok{background:var(--ok);color:#04121f;border-color:var(--ok);font-weight:600}
+  button.danger{background:#3a1a1a;border-color:#5b2626}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .row>button,.row>select{width:auto}
+  .chk{display:flex;align-items:center;gap:7px;font-size:13px}
+  .chk input{width:auto}
+  .srcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}
+  .srcbox{background:#0d1524;border:1px solid var(--line);border-radius:8px;padding:10px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+  .stat{background:#0d1524;border:1px solid var(--line);border-radius:8px;padding:10px}
+  .stat b{display:block;font-size:21px;color:var(--acc)}
+  .stat span{font-size:11px;color:var(--dim)}
+  .bar{height:10px;background:#0d1524;border:1px solid var(--line);border-radius:99px;overflow:hidden;margin-top:10px}
+  .bar>i{display:block;height:100%;width:0;background:var(--acc);transition:width .2s}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px}
+  th{position:sticky;top:0;background:#0f1a2b;cursor:pointer;user-select:none}
+  tbody tr:hover{background:#0f1a2b}
+  .tag{font-size:11px;padding:1px 6px;border-radius:99px;border:1px solid var(--line)}
+  .tag.vast{color:#7dd3fc;border-color:#1e5f80}.tag.mobiel{color:#86efac;border-color:#22603c}
+  .src{font-size:11px;color:var(--acc)}
+  #log{height:190px;overflow:auto;background:#08101c;border:1px solid var(--line);border-radius:8px;padding:8px;font:12px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap}
+  .l-warn{color:var(--warn)}.l-err{color:var(--err)}.l-ok{color:var(--ok)}.l-dim{color:var(--dim)}
+  .pager{display:flex;gap:8px;align-items:center;justify-content:center;margin:10px}
+  .pager button,.pager select{width:auto}
+  .muted{color:var(--dim);font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>+32 Telefoonnummer Scraper</h1>
+  <span class="muted">onbeperkt · vast &amp; mobiel · CSV/TXT</span>
+  <span class="grow"></span>
+  <button id="btnTest" style="width:auto">⚡ Test</button>
+  <button id="btnStart" class="primary" style="width:auto">▶ Start</button>
+  <button id="btnStop" class="danger" style="width:auto">■ Stop</button>
+</header>
+
+<div class="panel">
+  <h2>Bronnen</h2>
+  <div class="srcs">
+    <div class="srcbox"><label class="chk"><input type="checkbox" id="srcOsm" checked> OpenStreetMap (Overpass)</label><div class="muted" style="margin-top:6px">Gratis, keyless, onbeperkt.</div></div>
+    <div class="srcbox"><label class="chk"><input type="checkbox" id="srcWdt" checked> Wikidata</label><div class="muted" style="margin-top:6px">Bedrijven met telefoonnummer.</div></div>
+    <div class="srcbox"><label class="chk"><input type="checkbox" id="srcSites"> Websites uit OSM</label><div class="muted" style="margin-top:6px">Bezoekt website-tags.</div></div>
+    <div class="srcbox"><label class="chk"><input type="checkbox" id="srcUrls"> Eigen URL-lijst</label><div class="muted" style="margin-top:6px">Plak URL's hieronder.</div></div>
+    <div class="srcbox"><label class="chk"><input type="checkbox" id="srcLinkedin"> LinkedIn</label><div class="muted" style="margin-top:6px">Zoekterm of URL's (proxy).</div></div>
+    <div class="srcbox"><label class="chk"><input type="checkbox" id="srcGoogle"> Google Places</label><div class="muted" style="margin-top:6px">Key nodig.</div></div>
+    <div class="srcbox"><label class="chk"><input type="checkbox" id="srcFsq"> Foursquare</label><div class="muted" style="margin-top:6px">Key nodig.</div></div>
+    <div class="srcbox"><label class="chk"><input type="checkbox" id="srcYelp"> Yelp</label><div class="muted" style="margin-top:6px">Key nodig.</div></div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>OSM-instellingen</h2>
+  <div class="grid">
+    <div><label>Gebied</label>
+      <select id="preset">
+        <option value="vlaanderen" selected>Vlaanderen (gewest)</option>
+        <option value="wallonie">Wallonië / Franse kant</option>
+        <option value="brussel">Brussels Hoofdstedelijk Gewest</option>
+        <option value="belgie">België (heel)</option>
+        <option value="oost-vl">Oost-Vlaanderen</option>
+        <option value="west-vl">West-Vlaanderen</option>
+        <option value="antwerpen">Antwerpen</option>
+        <option value="limburg">Limburg</option>
+        <option value="vlaams-brabant">Vlaams-Brabant</option>
+        <option value="henegouwen">Henegouwen / Hainaut</option>
+        <option value="luik">Luik / Liège</option>
+        <option value="namen">Namen / Namur</option>
+        <option value="luxemburg">Luxemburg (BE)</option>
+        <option value="waals-brabant">Waals-Brabant</option>
+        <option value="frankrijk">Frankrijk</option>
+        <option value="custom">Aangepast…</option>
+      </select>
+    </div>
+    <div><label>Resultaat</label>
+      <select id="mode"><option value="mix" selected>Mix (huisnr + mobiel)</option><option value="hn">Alleen huisnummers</option><option value="mobiel">Alleen mobiel</option><option value="vast">Alleen vaste lijn</option></select>
+    </div>
+    <div><label>Gebiedsnaam (OSM)</label><input id="areaName" value="Vlaanderen"></div>
+    <div><label>Admin level</label><input id="adminLevel" value="4"></div>
+    <div><label>Chunk-niveau</label>
+      <select id="chunkLevel"><option value="8" selected>8 – gemeenten</option><option value="7">7 – arrondissementen</option><option value="6">6 – provincies</option><option value="4">4 – regio's</option></select>
+    </div>
+    <div><label>Timeout per query (s)</label><input id="timeout" type="number" value="180"></div>
+    <div><label>Max. herkansingsrondes</label><input id="rounds" type="number" value="8"></div>
+    <div><label>Pauze tussen chunks (ms)</label><input id="delay" type="number" value="200"></div>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <label class="chk"><input type="checkbox" id="onlyBE" checked> alleen Belgische nummers (+32)</label>
+    <label class="chk"><input type="checkbox" id="reqName"> alleen met naam</label>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Web · LinkedIn · API-keys</h2>
+  <div class="grid">
+    <div><label>Proxy (failover automatisch)</label>
+      <select id="proxy"><option value="allorigins" selected>allorigins</option><option value="codetabs">codetabs</option><option value="corsproxy">corsproxy.io</option><option value="jina">r.jina.ai (rendert JS)</option></select>
+    </div>
+    <div><label>Max. pagina's per bron</label><input id="maxSites" type="number" value="200"></div>
+    <div><label>Parallelle requests</label><input id="conc" type="number" value="3"></div>
+    <div><label>Wikidata-bereik</label><select id="wdtScope"><option value="Q31" selected>België</option><option value="Q142">Frankrijk</option></select></div>
+    <div><label>Wikidata limiet</label><input id="wdtLimit" type="number" value="8000"></div>
+    <div><label>Google Places key</label><input id="gKey" placeholder="AIza..."></div>
+    <div><label>Google zoekterm(en)</label><input id="gQuery" placeholder="restaurant Gent, kapper Brugge"></div>
+    <div><label>Foursquare key</label><input id="fKey" placeholder="fsq..."></div>
+    <div><label>Foursquare plaats(en)</label><input id="fQuery" placeholder="Gent, Brugge"></div>
+    <div><label>Yelp key</label><input id="yKey" placeholder="key"></div>
+    <div><label>Yelp locatie(s)</label><input id="yQuery" placeholder="Gent, Antwerpen"></div>
+    <div><label>LinkedIn zoekterm</label><input id="liQuery" placeholder="bv. bouwbedrijf Gent"></div>
+  </div>
+  <div style="margin-top:10px"><label>URL-lijst (één per regel)</label>
+    <textarea id="urlList" placeholder="https://www.linkedin.com/company/voorbeeld/
+https://www.bedrijf.be/contact"></textarea></div>
+  <div class="row" style="margin-top:8px"><label class="chk"><input type="checkbox" id="urlsViaJina" checked> URL-lijst via r.jina.ai</label></div>
+</div>
+
+<div class="panel">
+  <h2>Export (altijd +32)</h2>
+  <div class="row" style="margin-bottom:10px">
+    <select id="expFormat" style="max-width:230px">
+      <option value="csv;" selected>CSV (puntkomma ;)</option>
+      <option value="csv,">CSV (komma ,)</option>
+      <option value="txt">TXT (adres + tel)</option>
+      <option value="txt_hn">TXT (alleen huisnummers)</option>
+      <option value="json">JSON (back-up)</option>
+    </select>
+    <button id="btnExport" class="primary">⬇ Exporteer (gefilterd)</button>
+    <button id="btnExportMob">⬇ Mobiel + naam</button>
+    <button id="btnRetry">🔁 Herkans mislukte chunks</button>
+    <button id="btnImportJson">⬆ JSON importeren</button>
+    <button id="btnClear" class="danger">Wissen</button>
+  </div>
+  <div class="bar"><i id="bar"></i></div>
+  <div class="stats" style="margin-top:10px">
+    <div class="stat"><b id="sTotal">0</b><span>records</span></div>
+    <div class="stat"><b id="sVast">0</b><span>vaste lijn</span></div>
+    <div class="stat"><b id="sMob">0</b><span>mobiel</span></div>
+    <div class="stat"><b id="sPhones">0</b><span>unieke nummers</span></div>
+    <div class="stat"><b id="sStreets">0</b><span>unieke straten</span></div>
+    <div class="stat"><b id="sFail">0</b><span>mislukte chunks</span></div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="grid">
+    <div><label>Zoeken</label><input id="qFilter" placeholder="naam, straat, gemeente, nummer..."></div>
+    <div><label>Filter bron</label><select id="srcFilter"><option value="">alles</option><option value="osm">OSM</option><option value="wikidata">Wikidata</option><option value="site">Website</option><option value="url">Eigen URL</option><option value="linkedin">LinkedIn</option><option value="google">Google</option><option value="fsq">Foursquare</option><option value="yelp">Yelp</option></select></div>
+    <div><label>Type nummer</label><select id="typeFilter"><option value="">alles</option><option value="vast">vast</option><option value="mobiel">mobiel</option></select></div>
+    <div><label>Sorteren op</label><select id="sortKey"><option value="city" selected>Gemeente</option><option value="street">Straat</option><option value="hn">Huisnummer</option><option value="name">Naam</option><option value="phone">Telefoon</option><option value="source">Bron</option></select></div>
+    <div><label>Richting</label><select id="sortDir"><option value="1">Oplopend</option><option value="-1">Aflopend</option></select></div>
+  </div>
+  <div class="pager">
+    <button id="prev">◀ vorige</button><span id="pageInfo" class="muted">pagina 1</span><button id="next">volgende ▶</button>
+    <select id="pageSize"><option>200</option><option selected>500</option><option>1000</option><option>5000</option></select>
+  </div>
+  <div style="overflow:auto;max-height:52vh">
+    <table>
+      <thead><tr>
+        <th data-k="source">Bron</th><th data-k="name">Naam</th><th data-k="phone">Telefoon</th><th data-k="type">Type</th>
+        <th data-k="street">Straat</th><th data-k="hn">Nr</th><th data-k="postcode">Postcode</th><th data-k="city">Gemeente</th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="panel"><label>Log</label><div id="log"></div></div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const ENDPOINTS = [
+  "https://overpass-api.de/api/interpreter",
+  "https://lz4.overpass-api.de/api/interpreter",
+  "https://z.overpass-api.de/api/interpreter",
+  "https://overpass.osm.ch/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter"
+];
+const PROXIES = {
+  allorigins: u => "https://api.allorigins.win/raw?url="+encodeURIComponent(u),
+  codetabs:   u => "https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(u),
+  corsproxy:  u => "https://corsproxy.io/?"+encodeURIComponent(u),
+  jina:       u => "https://r.jina.ai/"+u
+};
+const PROXY_ORDER = ["allorigins","codetabs","corsproxy","jina"];
+
+const PRESETS = {
+  vlaanderen:{name:"Vlaanderen",admin:4,rel:53134,chunk:8},
+  wallonie:{name:"Wallonie|Wallonië",admin:4,rel:90348,chunk:8},
+  brussel:{name:"Bruxelles-Capitale|Brussel",admin:4,rel:54094,chunk:8},
+  belgie:{name:"België|Belgique",admin:2,chunk:6},
+  "oost-vl":{name:"Oost-Vlaanderen",admin:6,chunk:8,inBE:true},
+  "west-vl":{name:"West-Vlaanderen",admin:6,chunk:8,inBE:true},
+  antwerpen:{name:"Antwerpen",admin:6,chunk:8,inBE:true},
+  limburg:{name:"Limburg",admin:6,chunk:8,inBE:true},
+  "vlaams-brabant":{name:"Vlaams-Brabant",admin:6,chunk:8,inBE:true},
+  henegouwen:{name:"Hainaut|Henegouwen",admin:6,chunk:8,inBE:true},
+  luik:{name:"Liège|Luik",admin:6,chunk:8,inBE:true},
+  namen:{name:"Namur|Namen",admin:6,chunk:8,inBE:true},
+  luxemburg:{name:"Luxembourg|Luxemburg",admin:6,chunk:8,inBE:true},
+  "waals-brabant":{name:"Brabant wallon|Waals-Brabant",admin:6,chunk:8,inBE:true},
+  frankrijk:{name:"France",admin:2,chunk:6},
+  custom:{name:"",admin:6,chunk:8}
+};
+
+const state = { running:false, abort:false, items:[], seen:new Set(), ctrl:null, prog:0, progTotal:1, failed:[] };
+const view  = { page:0, pageSize:500, sortKey:"city", sortDir:1, filter:"", type:"", source:"", mode:"mix" };
+
+/* ---- nummers: alleen BE ---- */
+function normPhone(p){ let s=String(p||"").replace(/[^\d+]/g,"");
+  if(s.startsWith("+32")) s="0"+s.slice(3); else if(s.startsWith("0032")) s="0"+s.slice(4);
+  else if(s.startsWith("+33")) s="0"+s.slice(3); else if(s.startsWith("0033")) s="0"+s.slice(4);
+  return s; }
+function isBelgian(p){ const s=normPhone(p); return /^0\d{8}$/.test(s) || /^04\d{8}$/.test(s); }
+function phoneType(p){ const s=normPhone(p);
+  if(/^04\d{8}$/.test(s)) return "mobiel";
+  if(/^0\d{8}$/.test(s))  return "vast";
+  return "onbekend"; }
+function toPlus32(p){ const s=normPhone(p);
+  if(/^04\d{8}$/.test(s)) return "+32 "+s.slice(1,4)+" "+s.slice(4,6)+" "+s.slice(6,8)+" "+s.slice(8,10);
+  if(/^0(2|3|4|9)\d{7}$/.test(s)) return "+32 "+s.slice(1,3)+" "+s.slice(3,5)+" "+s.slice(5,7)+" "+s.slice(7,9);
+  if(/^0\d{8}$/.test(s)) return "+32 "+s.slice(1,4)+" "+s.slice(4,6)+" "+s.slice(6,8)+" "+s.slice(8,9);
+  return String(p||""); }
+function extractPhones(text){ const out=[]; let m, re1=/href=["']tel:([^"']+)/gi;
+  while((m=re1.exec(text))) out.push(m[1]);
+  const plain=text.replace(/<[^>]+>/g," ").replace(/&nbsp;/g," ");
+  const re2=/(\+?\d[\d\s().\/-]{6,18}\d)/g;
+  while((m=re2.exec(plain))){ const raw=m[1].replace(/\s+/g," ").trim(); const d=raw.replace(/\D/g,"");
+    if(d.length>=8 && d.length<=15) out.push(raw); }
+  return [...new Set(out.map(x=>x.trim()))]; }
+const pageTitle = t => { const m=t.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || t.match(/^\s*Title:\s*(.+)$/mi); return m?m[1].replace(/\s+/g," ").trim():""; };
+
+/* ---- UI ---- */
+function log(m,cls=""){ const d=document.createElement("div"); if(cls)d.className="l-"+cls;
+  d.textContent="["+new Date().toLocaleTimeString("nl-NL")+"] "+m;
+  const L=$("log"); L.appendChild(d); while(L.childNodes.length>800)L.removeChild(L.firstChild); L.scrollTop=L.scrollHeight; }
+function setBusy(b){ $("btnStart").disabled=b; $("btnTest").disabled=b; $("btnStop").disabled=!b; }
+function progress(p){ $("bar").style.width=Math.max(0,Math.min(100,p))+"%"; }
+
+/* ---- Overpass ---- */
+async function overpass(query, tries=6){
+  let lastErr;
+  for(let a=0;a<tries;a++) for(let i=0;i<ENDPOINTS.length;i++){
+    if(state.abort) throw new Error("abort");
+    const ep=ENDPOINTS[(i+a)%ENDPOINTS.length];
+    try{ state.ctrl=new AbortController();
+      const res=await fetch(ep,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+        body:"data="+encodeURIComponent(query),signal:state.ctrl.signal});
+      if(!res.ok) throw new Error("HTTP "+res.status);
+      const t=await res.text();
+      if(/runtime error/.test(t)&&/too busy|Dispatcher_Client|timeout/i.test(t)) throw new Error("bezet");
+      const j=JSON.parse(t); if(!j.elements) throw new Error("leeg"); return j;
+    }catch(e){ if(state.abort) throw new Error("abort"); lastErr=e; await sleep(400); }
+  }
+  throw lastErr || new Error("alle mirrors faalden");
+}
+async function fetchVia(url, firstKey){
+  const order=[firstKey, ...PROXY_ORDER.filter(k=>k!==firstKey)]; let err;
+  for(let r=0;r<2;r++) for(const key of order){
+    if(state.abort) throw new Error("abort");
+    try{ const res=await fetch(PROXIES[key](url),{signal:(state.ctrl=new AbortController()).signal});
+      if(!res.ok) throw new Error("HTTP "+res.status);
+      const txt=await res.text(); if(txt&&txt.length>40) return {txt,proxy:key};
+      throw new Error("leeg"); }catch(e){ err=e; }
+  }
+  throw err;
+}
+async function apiFetch(url, headers){
+  try{ const r=await fetch(url,{headers}); if(r.ok) return await r.json(); }catch(e){}
+  for(const key of ["corsproxy","codetabs"]) for(let r=0;r<2;r++){
+    try{ const res=await fetch(PROXIES[key](url),{headers}); if(res.ok) return await res.json(); }catch(e){}
+  }
+  throw new Error("API niet bereikbaar");
+}
+
+/* ---- queries ---- */
+function qFindArea(){ const p=PRESETS[$("preset").value]; const nm=$("areaName").value.trim()||p.name, al=$("adminLevel").value.trim();
+  if(p.rel) return `[out:json][timeout:120];rel(${p.rel});out ids;`;
+  const scope=p.inBE?`area["ISO3166-1"="BE"][admin_level=2]->.b;`:""; const inA=p.inBE?"(area.b)":"";
+  return `[out:json][timeout:120];${scope}rel["boundary"="administrative"]["admin_level"="${al}"]["name"~"${nm}",i]${inA};out ids;`; }
+const qChildren=(a,l)=>`[out:json][timeout:300];area(${a})->.a;rel["boundary"="administrative"]["admin_level"]="${l}"](area.a);out tags;`;
+function qData(a,to,reqHn){ const h=reqHn?'["addr:housenumber"]':"";
+  return `[out:json][timeout:${to}];area(${a})->.a;
+(node[~"^(contact:)?(phone|mobile)$"~"."]${h}(area.a);way[~"^(contact:)?(phone|mobile)$"~"."]${h}(area.a);relation[~"^(contact:)?(phone|mobile)$"~"."]${h}(area.a););out center tags;`; }
+const qCount=a=>qData(a,120,false).replace("out center tags;","out count;");
+function parseOsm(elements, cityHint){ const out=[];
+  for(const el of elements){ const t=el.tags||{};
+    const phone=t.phone||t["contact:phone"]||t.mobile||t["contact:mobile"]||"";
+    out.push({ source:"osm", id:"osm/"+el.type+"/"+el.id, name:t.name||"", phone, type:phoneType(phone),
+      street:t["addr:street"]||"", housenumber:t["addr:housenumber"]||"", postcode:t["addr:postcode"]||"",
+      city:t["addr:city"]||cityHint||"", url:t.website||t["contact:website"]||"" }); }
+  return out; }
+function addItem(it){
+  if(!it.phone) return false;
+  if($("onlyBE").checked && !isBelgian(it.phone)) return false;
+  const alt=(it.phone+"|"+it.street+"|"+it.housenumber+"|"+it.name).toLowerCase();
+  if(state.seen.has(it.id)||state.seen.has(alt)) return false;
+  state.seen.add(it.id); state.seen.add(alt); state.items.push(it); return true; }
+
+/* ---- OSM-run ---- */
+async function runOsm(){
+  const p=PRESETS[$("preset").value]; const to=parseInt($("timeout").value,10)||180; const reqHn=view.mode==="hn";
+  let areaId=null;
+  for(let a=0;a<8 && !state.abort && !areaId;a++){
+    try{ const fa=await overpass(qFindArea(),4); areaId=p.rel?(3600000000+p.rel):(fa.elements[0]?3600000000+fa.elements[0].id:null); }
+    catch(e){ log("Gebied zoeken mislukt, opnieuw… ("+e.message+")","warn"); await sleep(2000); } }
+  if(!areaId) throw new Error("Gebied niet gevonden");
+  log(`OSM: gebied area ${areaId}`,"ok");
+  let list=[];
+  for(let a=0;a<8 && !state.abort && !list.length;a++){
+    try{ const ch=await overpass(qChildren(areaId,$("chunkLevel").value),4);
+      list=ch.elements.map(e=>({id:3600000000+e.id,name:(e.tags&&e.tags.name)||""})); }
+    catch(e){ log("Chunks ophalen mislukt, opnieuw… ("+e.message+")","warn"); await sleep(2000); } }
+  if(!list.length) list=[{id:areaId,name:"(geheel)"}];
+  state.progTotal+=list.length;
+  const maxRounds=Math.max(1,parseInt($("rounds").value,10)||8);
+  let queue=list.slice(), round=0, added=0;
+  while(queue.length && !state.abort && round<maxRounds){
+    round++; const failed=[];
+    for(const m of queue){ if(state.abort) break;
+      try{ const d=await overpass(qData(m.id,to,reqHn),6);
+        for(const it of parseOsm(d.elements,m.name)) if(addItem(it)) added++; }
+      catch(e){ failed.push(m); log(`  ${m.name} mislukt → herkansing (${e.message})`,"warn"); }
+      state.prog++; progress(Math.min(99,state.prog/state.progTotal*100)); updateStats(); render();
+      await sleep(parseInt($("delay").value,10)||200); }
+    queue=failed; state.failed=queue.slice();
+    if(queue.length) log(`Ronde ${round} klaar — ${queue.length} chunks opnieuw…`,"warn");
+    await sleep(1500);
+  }
+  log(`OSM: +${added} records`,"ok");
+}
+/* ---- Wikidata (POST) ---- */
+const wdtQuery=(qid,limit)=>`SELECT ?item ?itemLabel ?phone ?street ?postcode ?cityLabel WHERE {
+  ?item wdt:P17 wd:${qid}; wdt:P1329 ?phone.
+  OPTIONAL { ?item wdt:P669 ?street. } OPTIONAL { ?item wdt:P281 ?postcode. } OPTIONAL { ?item wdt:P131 ?city. }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "nl,fr,en". } } LIMIT ${limit}`;
+async function runWikidata(){
+  const qid=$("wdtScope").value, limit=parseInt($("wdtLimit").value,10)||8000;
+  for(let a=0;a<5 && !state.abort;a++){
+    try{ log(`Wikidata: SPARQL (${qid})`);
+      const res=await fetch("https://query.wikidata.org/sparql",{ method:"POST",
+        headers:{"Content-Type":"application/x-www-form-urlencoded",Accept:"application/sparql-results+json"},
+        body:"query="+encodeURIComponent(wdtQuery(qid,limit)) });
+      if(!res.ok) throw new Error("HTTP "+res.status);
+      const j=await res.json(); let n=0;
+      for(const b of j.results.bindings){ const phone=b.phone?.value||"";
+        if(addItem({ source:"wikidata", id:"wdt/"+b.item.value, name:b.itemLabel?.value||"", phone, type:phoneType(phone),
+          street:b.street?.value||"", housenumber:"", postcode:b.postcode?.value||"", city:b.cityLabel?.value||"", url:b.item.value })) n++; }
+      log(`Wikidata: +${n} records`,"ok"); return;
+    }catch(e){ log("Wikidata mislukt, opnieuw… ("+e.message+")","warn"); await sleep(2000); } }
+}
+/* ---- web ---- */
+async function scrapeUrls(urls, source, firstKey, label){
+  let done=0, found=0; const conc=Math.max(1,parseInt($("conc").value,10)||3); let idx=0;
+  async function worker(){ while(idx<urls.length && !state.abort){ const u=urls[idx++];
+    try{ const {txt}=await fetchVia(u, firstKey); const title=pageTitle(txt);
+      for(const ph of extractPhones(txt)){ if(addItem({ source, id:source+"/"+u+"/"+ph, name:title, phone:ph, type:phoneType(ph),
+        street:"", housenumber:"", postcode:"", city:"", url:u })) found++; } }
+    catch(e){ log(`   ${u} → ${e.message}`,"warn"); }
+    done++; state.prog++; progress(Math.min(99,state.prog/state.progTotal*100));
+    if(done%10===0) log(`${label}: ${done}/${urls.length} · ${found}`,"dim");
+    await sleep(100); } }
+  await Promise.all(Array.from({length:conc},worker));
+  log(`${label}: klaar — +${found}`,"ok");
+}
+async function runGoogle(){
+  const key=$("gKey").value.trim(); const terms=$("gQuery").value.split(",").map(s=>s.trim()).filter(Boolean);
+  if(!key||!terms.length){ log("Google: key/zoekterm ontbreekt","warn"); return; } let n=0;
+  for(const q of terms){ let pageToken="";
+    for(let p=0;p<3;p++){
+      const res=await fetch("https://places.googleapis.com/v1/places:searchText",{ method:"POST",
+        headers:{"Content-Type":"application/json","X-Goog-Api-Key":key,
+          "X-Goog-FieldMask":"places.displayName,places.nationalPhoneNumber,places.addressComponents,places.websiteUri,nextPageToken"},
+        body:JSON.stringify({textQuery:q, languageCode:"nl", pageToken:pageToken||undefined}) });
+      if(!res.ok){ log("Google HTTP "+res.status,"err"); break; }
+      const j=await res.json();
+      for(const pl of (j.places||[])){ const phone=pl.nationalPhoneNumber||""; if(!phone) continue;
+        const comp=pl.addressComponents||[]; const get=t=>comp.find(c=>(c.types||[]).includes(t))?.longText||"";
+        if(addItem({ source:"google", id:"g/"+(pl.displayName?.text)+"/"+phone, name:pl.displayName?.text||"", phone, type:phoneType(phone),
+          street:get("route"), housenumber:get("street_number"), postcode:get("postal_code"), city:get("locality"), url:pl.websiteUri||"" })) n++; }
+      pageToken=j.nextPageToken||""; if(!pageToken) break; await sleep(300); } }
+  log(`Google: +${n}`,"ok");
+}
+async function runFsq(){
+  const key=$("fKey").value.trim(); const places=$("fQuery").value.split(",").map(s=>s.trim()).filter(Boolean);
+  if(!key||!places.length){ log("Foursquare: key/plaats ontbreekt","warn"); return; } let n=0;
+  for(const pl of places){ try{
+    const j=await apiFetch("https://api.foursquare.com/v3/places/search?near="+encodeURIComponent(pl)+"&limit=50&fields=fsq_id,name,tel,location,website",
+      {Authorization:key,Accept:"application/json"});
+    for(const r of (j.results||[])){ if(!r.tel) continue; const loc=r.location||{};
+      if(addItem({ source:"fsq", id:"fsq/"+r.fsq_id, name:r.name||"", phone:r.tel, type:phoneType(r.tel),
+        street:loc.address||"", housenumber:"", postcode:loc.postcode||"", city:loc.city||pl, url:r.website||"" })) n++; }
+    log(`Foursquare ${pl}: totaal ${n}`,"dim"); }catch(e){ log("Foursquare "+pl+": "+e.message,"err"); } }
+  log(`Foursquare: +${n}`,"ok");
+}
+async function runYelp(){
+  const key=$("yKey").value.trim(); const locs=$("yQuery").value.split(",").map(s=>s.trim()).filter(Boolean);
+  if(!key||!locs.length){ log("Yelp: key/locatie ontbreekt","warn"); return; } let n=0;
+  for(const loc of locs){ try{
+    const j=await apiFetch("https://api.yelp.com/v3/businesses/search?location="+encodeURIComponent(loc)+"&limit=50",
+      {Authorization:"Bearer "+key,Accept:"application/json"});
+    for(const b of (j.businesses||[])){ if(!b.phone) continue; const l=b.location||{};
+      if(addItem({ source:"yelp", id:"yelp/"+b.id, name:b.name||"", phone:b.phone, type:phoneType(b.phone),
+        street:(l.address1||""), housenumber:"", postcode:l.zip_code||"", city:l.city||loc, url:b.url||"" })) n++; }
+    log(`Yelp ${loc}: totaal ${n}`,"dim"); }catch(e){ log("Yelp "+loc+": "+e.message,"err"); } }
+  log(`Yelp: +${n}`,"ok");
+}
+async function runLinkedIn(){
+  const term=$("liQuery").value.trim(); let urls=[];
+  if(term){ try{ const {txt}=await fetchVia("https://www.linkedin.com/search/results/companies/?keywords="+encodeURIComponent(term),"jina");
+      urls=[...new Set([...txt.matchAll(/https?:\/\/[a-z]{0,3}\.?linkedin\.com\/company\/[A-Za-z0-9\-_%]+/gi)].map(m=>m[0].replace(/\/$/,"")))]; }
+    catch(e){ log("LinkedIn zoeken mislukt: "+e.message,"warn"); } }
+  const fromList=$("urlList").value.split(/\s*\n\s*/).map(s=>s.trim()).filter(u=>/linkedin\.com\/company\//i.test(u));
+  urls=[...new Set([...urls,...fromList])].slice(0,parseInt($("maxSites").value,10)||200);
+  if(!urls.length){ log("LinkedIn: geen URL's","warn"); return; }
+  state.progTotal+=urls.length; await scrapeUrls(urls,"linkedin","jina","LinkedIn");
+}
+
+/* ---- sort/filter/render ---- */
+function hnKey(h){ const m=String(h||"").match(/^(\d+)\s*(.*)$/); return m?[parseInt(m[1],10),m[2].toLowerCase()]:[Number.MAX_SAFE_INTEGER,String(h||"").toLowerCase()]; }
+const cmpStr=(a,b)=>a<b?-1:a>b?1:0;
+function comparator(k,d){ return (a,b)=>{ let r=0;
+  if(k==="hn"){ const A=hnKey(a.housenumber),B=hnKey(b.housenumber); r=A[0]!==B[0]?A[0]-B[0]:cmpStr(A[1],B[1]); }
+  else r=cmpStr(String(a[k]||"").toLowerCase(),String(b[k]||"").toLowerCase());
+  if(r===0) r=cmpStr((a.city||"")+(a.street||"")+(a.housenumber||""),(b.city||"")+(b.street||"")+(b.housenumber||""));
+  return r*d; }; }
+function filtered(){ const q=view.filter.trim().toLowerCase(); let list=state.items;
+  if($("onlyBE").checked) list=list.filter(x=>isBelgian(x.phone));
+  if(view.mode==="hn") list=list.filter(x=>x.housenumber);
+  if(view.mode==="mobiel") list=list.filter(x=>x.type==="mobiel");
+  if(view.mode==="vast") list=list.filter(x=>x.type==="vast");
+  if(view.type) list=list.filter(x=>x.type===view.type);
+  if(view.source) list=list.filter(x=>x.source===view.source);
+  if($("reqName").checked) list=list.filter(x=>x.name);
+  if(q) list=list.filter(x=>[x.name,x.street,x.housenumber,x.city,x.postcode,x.phone,x.url].join(" ").toLowerCase().includes(q));
+  return list.slice().sort(comparator(view.sortKey,view.sortDir)); }
+function render(){ const list=filtered(); const maxPage=Math.max(0,Math.ceil(list.length/view.pageSize)-1);
+  if(view.page>maxPage) view.page=maxPage;
+  const slice=list.slice(view.page*view.pageSize,(view.page+1)*view.pageSize);
+  $("tbody").innerHTML=slice.map(x=>`<tr>
+    <td><span class="src">${esc(x.source)}</span></td><td>${esc(x.name)}</td><td>${esc(toPlus32(x.phone))}</td>
+    <td><span class="tag ${x.type}">${x.type}</span></td><td>${esc(x.street)}</td><td>${esc(x.housenumber)}</td>
+    <td>${esc(x.postcode)}</td><td>${esc(x.city)}</td></tr>`).join("");
+  $("pageInfo").textContent=`pagina ${view.page+1} / ${maxPage+1} — ${list.length} zichtbaar`; }
+function updateStats(){ const vast=state.items.filter(x=>x.type==="vast").length, mob=state.items.filter(x=>x.type==="mobiel").length;
+  $("sTotal").textContent=state.items.length.toLocaleString("nl-NL");
+  $("sVast").textContent=vast.toLocaleString("nl-NL"); $("sMob").textContent=mob.toLocaleString("nl-NL");
+  $("sPhones").textContent=new Set(state.items.map(x=>normPhone(x.phone)).filter(Boolean)).size.toLocaleString("nl-NL");
+  $("sStreets").textContent=new Set(state.items.map(x=>(x.street||"").toLowerCase()).filter(Boolean)).size.toLocaleString("nl-NL");
+  $("sFail").textContent=state.failed.length; }
+
+/* ---- run ---- */
+async function run(){
+  if(state.running) return; state.running=true; state.abort=false; setBusy(true); progress(0);
+  view.mode=$("mode").value; log("=== Start ===","ok");
+  try{
+    for(let outer=0; outer<3 && !state.abort; outer++){
+      try{
+        if($("srcOsm").checked) await runOsm();
+        if($("srcWdt").checked && !state.abort){ try{ await runWikidata(); }catch(e){} }
+        if($("srcSites").checked && !state.abort){
+          const sites=[...new Set(state.items.filter(x=>x.source==="osm"&&x.url).map(x=>x.url))].filter(u=>/^https?:\/\//.test(u)).slice(0,parseInt($("maxSites").value,10)||200);
+          state.progTotal+=sites.length; if(sites.length) await scrapeUrls(sites,"site",$("proxy").value,"Websites"); }
+        if($("srcUrls").checked && !state.abort){
+          const urls=$("urlList").value.split(/\s*\n\s*/).map(s=>s.trim()).filter(u=>/^https?:\/\//.test(u));
+          state.progTotal+=urls.length; if(urls.length) await scrapeUrls(urls,"url",$("urlsViaJina").checked?"jina":$("proxy").value,"URL's"); }
+        if($("srcLinkedin").checked && !state.abort){ try{ await runLinkedIn(); }catch(e){} }
+        if($("srcGoogle").checked && !state.abort){ try{ await runGoogle(); }catch(e){} }
+        if($("srcFsq").checked && !state.abort){ try{ await runFsq(); }catch(e){} }
+        if($("srcYelp").checked && !state.abort){ try{ await runYelp(); }catch(e){} }
+        break;
+      }catch(e){ log(`Run mislukt (${e.message}) — opnieuw…`,"warn"); await sleep(3000); }
+    }
+    log(`=== Klaar: ${state.items.length} records ===`,"ok");
+  }catch(e){ log("Fout: "+e.message,"err"); }
+  finally{ state.running=false; setBusy(false); updateStats(); render(); save(); }
+}
+async function testAll(){
+  setBusy(true);
+  try{ log("--- Test OSM ---");
+    const p=PRESETS[$("preset").value]; const fa=await overpass(qFindArea(),8);
+    const areaId=p.rel?(3600000000+p.rel):3600000000+fa.elements[0].id;
+    const c=await overpass(qCount(areaId),8);
+    log(`OSM OK: ${c.elements[0]?.tags?.total||0} records ✔`,"ok");
+    log("--- Test Wikidata ---");
+    const r=await fetch("https://query.wikidata.org/sparql",{method:"POST",
+      headers:{"Content-Type":"application/x-www-form-urlencoded",Accept:"application/sparql-results+json"},
+      body:"query="+encodeURIComponent(wdtQuery("Q31",5))});
+    log(`Wikidata OK: ${(await r.json()).results.bindings.length} hits ✔`,"ok");
+    log("--- Test proxy ---");
+    const {proxy}=await fetchVia("https://example.com",$("proxy").value);
+    log(`Proxy OK via ${proxy} ✔`,"ok"); log("Alles werkt. Klik Start.","ok");
+  }catch(e){ log("Test: "+e.message+" (klik nog eens Test)","err"); }
+  finally{ setBusy(false); }
+}
+
+/* ---- opslag/export ---- */
+function save(){ try{ localStorage.setItem("be_phone_items",JSON.stringify(state.items)); }catch(e){ log("Opslaan mislukt (quota).","warn"); } }
+function load(){ try{ const raw=localStorage.getItem("be_phone_items"); if(raw){ state.items=JSON.parse(raw);
+  state.items.forEach(x=>{ state.seen.add(x.id); state.seen.add((x.phone+"|"+x.street+"|"+x.housenumber+"|"+x.name).toLowerCase()); if(!x.type)x.type=phoneType(x.phone); });
+  log(`Hersteld: ${state.items.length} records.`,"dim"); } }catch(e){} }
+function download(name,text,type){ const b=new Blob([text],{type}); const a=document.createElement("a");
+  a.href=URL.createObjectURL(b); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); }
+const HEAD=["source","name","phone","type","street","housenumber","postcode","city","url"];
+function csvOf(list,sep){ const lines=[HEAD.join(sep)];
+  for(const x of list){ lines.push(HEAD.map(k=>{ let v=x[k]==null?"":String(x[k]); if(k==="phone") v=toPlus32(v);
+    if(sep===";")v=v.replace(/;/g,","); if(v.includes(sep)||v.includes('"')||v.includes("\n")) v='"'+v.replace(/"/g,'""')+'"'; return v; }).join(sep)); }
+  return "\uFEFF"+lines.join("\r\n"); }
+const txtOf=l=>l.map(x=>[x.name,(x.street+" "+x.housenumber).trim(),(x.postcode+" "+x.city).trim(),toPlus32(x.phone),x.url].filter(Boolean).join(" | ")).join("\r\n");
+function hnOnly(l){ const s=new Set(); l.forEach(x=>{ if(x.housenumber) s.add((x.city?x.city+" ":"").concat(x.street||""," ",x.housenumber)); }); return [...s].sort((a,b)=>a.localeCompare(b,"nl")).join("\r\n"); }
+function doExport(){ const f=$("expFormat").value, list=filtered();
+  if(f==="csv;") download("telefoonnummers_be.csv",csvOf(list,";"),"text/csv;charset=utf-8");
+  else if(f==="csv,") download("telefoonnummers_be_komma.csv",csvOf(list,","),"text/csv;charset=utf-8");
+  else if(f==="txt") download("telefoonnummers_be.txt",txtOf(list),"text/plain;charset=utf-8");
+  else if(f==="txt_hn") download("huisnummers_be.txt",hnOnly(list),"text/plain;charset=utf-8");
+  else download("backup.json",JSON.stringify(list,null,1),"application/json"); }
+
+/* ---- events ---- */
+$("btnStart").onclick=run; $("btnTest").onclick=testAll; $("btnExport").onclick=doExport;
+$("btnStop").onclick=()=>{ state.abort=true; if(state.ctrl)state.ctrl.abort(); log("Stop...","warn"); };
+$("btnClear").onclick=()=>{ if(confirm("Alles wissen?")){ state.items=[]; state.seen.clear(); state.failed=[]; save(); updateStats(); render(); } };
+$("btnExportMob").onclick=()=>download("mobiel_be.csv",csvOf(filtered().filter(x=>x.type==="mobiel"&&x.name),";"),"text/csv;charset=utf-8");
+$("btnRetry").onclick=async()=>{ if(!state.failed.length){ log("Geen mislukte chunks.","dim"); return; }
+  if(state.running) return; state.running=true; setBusy(true);
+  let q=state.failed.slice(), round=0;
+  while(q.length && !state.abort && round<10){ round++; const f=[];
+    for(const m of q){ try{ const d=await overpass(qData(m.id,parseInt($("timeout").value,10)||180,view.mode==="hn"),6);
+        for(const it of parseOsm(d.elements,m.name)) addItem(it); }catch(e){ f.push(m); } updateStats(); render(); }
+    q=f; state.failed=q.slice(); log(`Herkansing ${round}: ${q.length} over`,"warn"); await sleep(1500); }
+  state.running=false; setBusy(false); save(); updateStats(); render(); log("Herkansing klaar.","ok"); };
+$("btnImportJson").onclick=()=>{ const i=document.createElement("input"); i.type="file"; i.accept=".json";
+  i.onchange=async()=>{ const arr=JSON.parse(await i.files[0].text()); arr.forEach(x=>{x.type=x.type||phoneType(x.phone); x.source=x.source||"import";}); const n=arr.filter(addItem).length; save(); updateStats(); render(); log(`Geïmporteerd: +${n}.`,"ok"); }; i.click(); };
+$("preset").onchange=()=>{ const p=PRESETS[$("preset").value]; if($("preset").value!=="custom"){ $("areaName").value=p.name; $("adminLevel").value=p.admin; $("chunkLevel").value=p.chunk; } };
+$("mode").onchange=()=>{ view.mode=$("mode").value; view.page=0; render(); };
+$("onlyBE").onchange=()=>{ view.page=0; render(); };
+$("srcFilter").onchange=e=>{ view.source=e.target.value; view.page=0; render(); };
+$("typeFilter").onchange=e=>{ view.type=e.target.value; view.page=0; render(); };
+$("qFilter").oninput=e=>{ view.filter=e.target.value; view.page=0; render(); };
+$("reqName").onchange=()=>{ view.page=0; render(); };
+$("sortKey").onchange=e=>{ view.sortKey=e.target.value; render(); };
+$("sortDir").onchange=e=>{ view.sortDir=parseInt(e.target.value,10); render(); };
+$("pageSize").onchange=e=>{ view.pageSize=parseInt(e.target.value,10); view.page=0; render(); };
+$("prev").onclick=()=>{ view.page=Math.max(0,view.page-1); render(); };
+$("next").onclick=()=>{ view.page++; render(); };
+document.querySelectorAll("th[data-k]").forEach(th=>th.onclick=()=>{ view.sortKey=th.dataset.k; render(); });
+
+/* ---- init ---- */
+$("preset").onchange(); load(); updateStats(); render();
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+log("Klaar. Klik Test, dan Start.","ok");
+</script>
+</body>
+</html>
