@@ -1,8 +1,10 @@
 {
-  "name": "+32 Nummerzoeker",
+  "name": "+32 Nummerzoeker Pro",
   "short_name": "Nummerzoeker",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0b1220",
   "theme_color": "#0b1220",
   "icons": [
