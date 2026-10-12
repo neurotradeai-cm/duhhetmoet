@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>+32 Nummerzoeker</title>
+<title>+32 Nummerzoeker Pro</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg">
 <meta name="theme-color" content="#0b1220">
@@ -17,16 +17,21 @@ header button{width:auto;padding:8px 12px;}
 .wrap{padding:14px;}
 .card-panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px;}
 label{display:block;font-size:12px;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;}
-select,input,button{font:inherit;color:var(--txt);background:#0d1524;border:1px solid var(--line);border-radius:12px;padding:13px 12px;width:100%;}
+select,input,textarea,button{font:inherit;color:var(--txt);background:#0d1524;border:1px solid var(--line);border-radius:12px;padding:13px 12px;width:100%;}
 select{font-size:16px;}
+textarea{min-height:90px;resize:vertical;font:13px/1.4 ui-monospace,Consolas,monospace;}
+optgroup{color:var(--dim);font-size:13px;}
 button{cursor:pointer;background:#1b2a42;border-color:#2c4160;}
 button:disabled{opacity:.5;}
 .seg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px;}
-.seg button{padding:14px 6px;font-size:15px;}
+.seg.two{grid-template-columns:1fr 1fr;}
+.seg.four{grid-template-columns:1fr 1fr;}
+.seg button{padding:13px 6px;font-size:14px;}
 .seg button.on{background:var(--acc);color:#04121f;border-color:var(--acc);font-weight:700;}
 .big{width:100%;padding:16px;font-size:17px;font-weight:700;border-radius:14px;margin-top:12px;}
 .primary{background:var(--acc);color:#04121f;border-color:var(--acc);}
 .ok{background:var(--ok);color:#04121f;border-color:var(--ok);}
+.share{background:#7c3aed;color:#fff;border-color:#7c3aed;}
 .danger{background:#3a1a1a;border-color:#5b2626;}
 .bar{height:12px;background:#0d1524;border:1px solid var(--line);border-radius:99px;overflow:hidden;margin-top:12px;}
 .bar>i{display:block;height:100%;width:0;background:var(--acc);transition:width .2s;}
@@ -39,7 +44,9 @@ button:disabled{opacity:.5;}
 .badge{display:inline-block;font-size:11px;padding:1px 8px;border-radius:99px;border:1px solid var(--line);margin-left:6px;}
 .badge.mobiel{color:#86efac;border-color:#22603c;}
 .badge.vast{color:#7dd3fc;border-color:#1e5f80;}
-#log{height:130px;overflow:auto;background:#08101c;border:1px solid var(--line);border-radius:12px;padding:8px;font:12px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;}
+.badge.zakelijk{color:#fcd34d;border-color:#6b5312;}
+.badge.particulier{color:#c4b5fd;border-color:#4c3f80;}
+#log{height:150px;overflow:auto;background:#08101c;border:1px solid var(--line);border-radius:12px;padding:8px;font:12px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;}
 .l-warn{color:var(--warn);}.l-err{color:var(--err);}.l-ok{color:var(--ok);}.l-dim{color:var(--dim);}
 .hint{font-size:12px;color:var(--dim);margin-top:8px;}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;background:var(--ok);color:#04121f;font-weight:700;padding:12px 18px;border-radius:12px;z-index:50;opacity:0;transition:opacity .3s;pointer-events:none;}
@@ -47,18 +54,31 @@ button:disabled{opacity:.5;}
 .hide{display:none;}
 .row2{display:flex;gap:8px;margin-top:10px;}
 .row2 button{width:auto;flex:1;}
+.srcgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.srcgrid label{display:flex;align-items:center;gap:8px;font-size:13px;text-transform:none;letter-spacing:0;color:var(--txt);background:#0d1524;border:1px solid var(--line);border-radius:10px;padding:9px 10px;margin:0;cursor:pointer;}
+.srcgrid input{width:auto;padding:0;transform:scale(1.2);}
+.chk{display:flex;align-items:center;gap:8px;font-size:14px;text-transform:none;letter-spacing:0;color:var(--txt);background:#0d1524;border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin:0;cursor:pointer;}
+.chk input{width:auto;padding:0;transform:scale(1.25);}
 </style>
 </head>
 <body>
 <header>
-  <h1>+32 Nummerzoeker</h1>
-  <button id="btnAdv">⚙</button>
+  <h1>+32 Nummerzoeker Pro</h1>
+  <button id="btnAdv">⚙ Bronnen</button>
 </header>
 
 <div class="wrap">
   <div class="card-panel">
     <label>Regio</label>
     <select id="regio"></select>
+
+    <label style="margin-top:12px">Doelgroep</label>
+    <div class="seg four">
+      <button data-t="iedereen" class="on">Iedereen</button>
+      <button data-t="particulier">Particulier / ouderen</button>
+      <button data-t="zakelijk">Zakelijk</button>
+      <button data-t="zorg">Zorg &amp; senioren</button>
+    </div>
 
     <label style="margin-top:12px">Soort nummer</label>
     <div class="seg">
@@ -67,38 +87,59 @@ button:disabled{opacity:.5;}
       <button data-m="alles" class="on">Alles</button>
     </div>
 
-    <button id="btnStart" class="big primary">▶ Start zoeken</button>
+    <label style="margin-top:12px">Netnummer (filter vaste lijn, optioneel)</label>
+    <select id="net"></select>
+
+    <label style="margin-top:12px">Eigen zoekterm (optioneel)</label>
+    <input id="kw" placeholder="bv. loodgieter, rusthuis, apotheek, dokter">
+
+    <button id="btnStart" class="big primary">▶ Start oogsten</button>
     <button id="btnStop" class="big danger hide">■ Stop</button>
 
     <div class="bar"><i id="bar"></i></div>
     <div class="count"><span id="cnt">0</span><small>nummers gevonden</small></div>
   </div>
 
-  <div class="card-panel" id="resPanel">
+  <div class="card-panel">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
       <label style="margin:0">Resultaten</label>
       <span id="resCount" style="font-size:12px;color:var(--dim)">0</span>
     </div>
     <div id="list" style="margin-top:10px"></div>
-    <button id="btnExport" class="big ok">⬇ Exporteer (CSV) + nieuwe zoektocht</button>
-    <div class="hint">Na export wordt de lijst gewist en kun je direct opnieuw starten.</div>
+
+    <label class="chk" style="margin-top:10px"><input type="checkbox" id="autoDl"> Automatisch downloaden zodra klaar</label>
+    <select id="autoFmt" style="margin-top:8px">
+      <option value="csv">Auto-formaat: CSV</option>
+      <option value="txt">Auto-formaat: TXT</option>
+    </select>
+
+    <button id="btnShare" class="big share">📤 Delen / opslaan op telefoon</button>
+    <button id="btnExportCsv" class="big ok">⬇ Exporteer CSV</button>
+    <button id="btnExportTxt" class="big ok" style="margin-top:8px">⬇ Exporteer TXT</button>
+    <div class="hint">Op gsm: gebruik "Delen / opslaan" en kies "Opslaan in Bestanden" of "Downloads". Bij export wordt de lijst gewist.</div>
   </div>
 
   <div class="card-panel hide" id="advPanel">
-    <label>Geavanceerd</label>
+    <label>Bronnen (aan/uit)</label>
+    <div class="srcgrid" id="srcgrid"></div>
+
+    <label style="margin-top:14px">Eigen URL's (1 per lijn)</label>
+    <textarea id="customUrls" placeholder="https://www.voorbeeld.be/contact&#10;https://www.bedrijf.be/over-ons"></textarea>
+
+    <label style="margin-top:14px">Bestand met URL's / tekst (.txt .csv .html)</label>
+    <input type="file" id="fileIn" accept=".txt,.csv,.html,.htm,text/plain">
+
     <div class="row2" style="flex-wrap:wrap">
       <button id="btnTest">⚡ Test verbinding</button>
       <button id="btnClear">Wissen</button>
     </div>
-    <label style="margin-top:12px">Extra bronnen</label>
-    <div class="seg" style="grid-template-columns:1fr 1fr;">
-      <button id="tSites" data-on="0">Websites uit OSM</button>
-      <button id="tDdg" data-on="0">DuckDuckGo</button>
-    </div>
-    <label style="margin-top:12px">Fijnmazigheid</label>
+
+    <label style="margin-top:12px">Fijnmazigheid gebieden</label>
     <select id="chunkLevel">
       <option value="6">Snel (grote gebieden)</option>
       <option value="8" selected>Compleet (gemeenten)</option>
+      <option value="9">Zeer fijn (deelgemeenten)</option>
+      <option value="10">Alles (wijken)</option>
     </select>
     <div id="log" style="margin-top:12px"><div class="l-dim">Klaar.</div></div>
   </div>
@@ -111,34 +152,122 @@ button:disabled{opacity:.5;}
 const $=id=>document.getElementById(id);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const dec=s=>{try{return decodeURIComponent(s);}catch(e){return s;}};
+const isMobile=matchMedia("(pointer:coarse)").matches||/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 
-const ENDPOINTS=["https://overpass-api.de/api/interpreter","https://lz4.overpass-api.de/api/interpreter","https://z.overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
-const PROXIES={allorigins:u=>"https://api.allorigins.win/raw?url="+encodeURIComponent(u),codetabs:u=>"https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(u),corsproxy:u=>"https://corsproxy.io/?"+encodeURIComponent(u),jina:u=>"https://r.jina.ai/"+u};
-const PROXY_ORDER=["allorigins","codetabs","corsproxy","jina"];
-
-const REGIONS={
-  belgie:{name:"België (heel)",admin:2,chunk:6},
-  vlaanderen:{name:"Vlaanderen",admin:4,rel:53134,chunk:6},
-  brussel:{name:"Brussel",admin:4,rel:54094,chunk:8},
-  wallonie:{name:"Wallonië",admin:4,rel:90348,chunk:6},
-  antwerpen:{name:"Antwerpen",admin:6,chunk:8,inBE:true},
-  "oost-vl":{name:"Oost-Vlaanderen",admin:6,chunk:8,inBE:true},
-  "west-vl":{name:"West-Vlaanderen",admin:6,chunk:8,inBE:true},
-  "vlaams-brabant":{name:"Vlaams-Brabant",admin:6,chunk:8,inBE:true},
-  limburg:{name:"Limburg",admin:6,chunk:8,inBE:true},
-  henegouwen:{name:"Henegouwen",admin:6,chunk:8,inBE:true},
-  luik:{name:"Luik",admin:6,chunk:8,inBE:true},
-  namen:{name:"Namen",admin:6,chunk:8,inBE:true},
-  "waals-brabant":{name:"Waals-Brabant",admin:6,chunk:8,inBE:true},
-  luxemburg:{name:"Luxemburg (BE)",admin:6,chunk:8,inBE:true}
+/* ================= NETWERK-ROUTES (mirrors + proxies) ================= */
+const ENDPOINTS=[
+  "https://overpass-api.de/api/interpreter",
+  "https://lz4.overpass-api.de/api/interpreter",
+  "https://z.overpass-api.de/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+  "https://overpass.private.coffee/api/interpreter",
+  "https://overpass.osm.jp/api/interpreter",
+  "https://overpass.osm.ch/api/interpreter"
+];
+const PROXIES={
+  allorigins:u=>"https://api.allorigins.win/raw?url="+encodeURIComponent(u),
+  corsproxy:u=>"https://corsproxy.io/?"+encodeURIComponent(u),
+  codetabs:u=>"https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(u),
+  corslol:u=>"https://api.cors.lol/?url="+encodeURIComponent(u),
+  jina:u=>"https://r.jina.ai/"+u
 };
+const PROXY_ORDER=["allorigins","corsproxy","codetabs","corslol","jina"];
 
-const state={running:false,abort:false,items:[],seen:new Set(),ctrl:null,prog:0,progTotal:1,failed:[],mode:"alles"};
-let adv={sites:false,ddg:false};
+/* ================= REGIO'S ================= */
+const REGIONS={
+  belgie:{label:"België (heel land)",kind:"land",rel:52411,chunk:6},
+  vlaanderen:{label:"Vlaanderen (heel gewest)",kind:"gewest",rel:53134,chunk:6},
+  brussel:{label:"Brussel (gewest)",kind:"gewest",rel:54094,chunk:8},
+  wallonie:{label:"Wallonië (heel gewest)",kind:"gewest",rel:90348,chunk:6},
+  antwerpen:{label:"Antwerpen (provincie)",kind:"provincie",admin:6,name:"Antwerpen",inBE:true,chunk:8},
+  "oost-vl":{label:"Oost-Vlaanderen (provincie)",kind:"provincie",admin:6,name:"Oost-Vlaanderen",inBE:true,chunk:8},
+  "west-vl":{label:"West-Vlaanderen (provincie)",kind:"provincie",admin:6,name:"West-Vlaanderen",inBE:true,chunk:8},
+  "vlaams-brabant":{label:"Vlaams-Brabant (provincie)",kind:"provincie",admin:6,name:"Vlaams-Brabant",inBE:true,chunk:8},
+  limburg:{label:"Limburg (provincie)",kind:"provincie",admin:6,name:"Limburg",inBE:true,chunk:8},
+  henegouwen:{label:"Henegouwen (provincie)",kind:"provincie",admin:6,name:"Hainaut",inBE:true,chunk:8},
+  luik:{label:"Luik (provincie)",kind:"provincie",admin:6,name:"Liège",inBE:true,chunk:8},
+  namen:{label:"Namen (provincie)",kind:"provincie",admin:6,name:"Namur",inBE:true,chunk:8},
+  "waals-brabant":{label:"Waals-Brabant (provincie)",kind:"provincie",admin:6,name:"Brabant wallon",inBE:true,chunk:8},
+  luxemburg:{label:"Luxemburg (provincie)",kind:"provincie",admin:6,name:"Luxembourg",inBE:true,chunk:8},
+  "antwerpen-stad":{label:"Antwerpen (stad)",kind:"stad-vl",name:"Antwerpen",inBE:true,chunk:9},
+  gent:{label:"Gent",kind:"stad-vl",name:"Gent",inBE:true,chunk:9},
+  brugge:{label:"Brugge",kind:"stad-vl",name:"Brugge",inBE:true,chunk:9},
+  leuven:{label:"Leuven",kind:"stad-vl",name:"Leuven",inBE:true,chunk:9},
+  mechelen:{label:"Mechelen",kind:"stad-vl",name:"Mechelen",inBE:true,chunk:9},
+  hasselt:{label:"Hasselt",kind:"stad-vl",name:"Hasselt",inBE:true,chunk:9},
+  kortrijk:{label:"Kortrijk",kind:"stad-vl",name:"Kortrijk",inBE:true,chunk:9},
+  oostende:{label:"Oostende",kind:"stad-vl",name:"Oostende",inBE:true,chunk:9},
+  aalst:{label:"Aalst",kind:"stad-vl",name:"Aalst",inBE:true,chunk:9},
+  "sint-niklaas":{label:"Sint-Niklaas",kind:"stad-vl",name:"Sint-Niklaas",inBE:true,chunk:9},
+  genk:{label:"Genk",kind:"stad-vl",name:"Genk",inBE:true,chunk:9},
+  roeselare:{label:"Roeselare",kind:"stad-vl",name:"Roeselare",inBE:true,chunk:9},
+  turnhout:{label:"Turnhout",kind:"stad-vl",name:"Turnhout",inBE:true,chunk:9},
+  dendermonde:{label:"Dendermonde",kind:"stad-vl",name:"Dendermonde",inBE:true,chunk:9},
+  vilvoorde:{label:"Vilvoorde",kind:"stad-vl",name:"Vilvoorde",inBE:true,chunk:9},
+  lier:{label:"Lier",kind:"stad-vl",name:"Lier",inBE:true,chunk:9},
+  halle:{label:"Halle",kind:"stad-vl",name:"Halle",inBE:true,chunk:9},
+  geel:{label:"Geel",kind:"stad-vl",name:"Geel",inBE:true,chunk:9},
+  mol:{label:"Mol",kind:"stad-vl",name:"Mol",inBE:true,chunk:9},
+  "knokke-heist":{label:"Knokke-Heist",kind:"stad-vl",name:"Knokke-Heist",inBE:true,chunk:9},
+  ieper:{label:"Ieper",kind:"stad-vl",name:"Ieper",inBE:true,chunk:9},
+  waregem:{label:"Waregem",kind:"stad-vl",name:"Waregem",inBE:true,chunk:9},
+  herentals:{label:"Herentals",kind:"stad-vl",name:"Herentals",inBE:true,chunk:9},
+  tongeren:{label:"Tongeren",kind:"stad-vl",name:"Tongeren",inBE:true,chunk:9},
+  diest:{label:"Diest",kind:"stad-vl",name:"Diest",inBE:true,chunk:9},
+  "sint-truiden":{label:"Sint-Truiden",kind:"stad-vl",name:"Sint-Truiden",inBE:true,chunk:9},
+  lommel:{label:"Lommel",kind:"stad-vl",name:"Lommel",inBE:true,chunk:9},
+  beveren:{label:"Beveren",kind:"stad-vl",name:"Beveren",inBE:true,chunk:9},
+  temse:{label:"Temse",kind:"stad-vl",name:"Temse",inBE:true,chunk:9},
+  wetteren:{label:"Wetteren",kind:"stad-vl",name:"Wetteren",inBE:true,chunk:9},
+  ninove:{label:"Ninove",kind:"stad-vl",name:"Ninove",inBE:true,chunk:9},
+  oudenaarde:{label:"Oudenaarde",kind:"stad-vl",name:"Oudenaarde",inBE:true,chunk:9},
+  ronse:{label:"Ronse",kind:"stad-vl",name:"Ronse",inBE:true,chunk:9},
+  eeklo:{label:"Eeklo",kind:"stad-vl",name:"Eeklo",inBE:true,chunk:9},
+  tienen:{label:"Tienen",kind:"stad-vl",name:"Tienen",inBE:true,chunk:9},
+  deinze:{label:"Deinze",kind:"stad-vl",name:"Deinze",inBE:true,chunk:9},
+  wevelgem:{label:"Wevelgem",kind:"stad-vl",name:"Wevelgem",inBE:true,chunk:9},
+  izegem:{label:"Izegem",kind:"stad-vl",name:"Izegem",inBE:true,chunk:9},
+  menen:{label:"Menen",kind:"stad-vl",name:"Menen",inBE:true,chunk:9},
+  blankenberge:{label:"Blankenberge",kind:"stad-vl",name:"Blankenberge",inBE:true,chunk:9},
+  veurne:{label:"Veurne",kind:"stad-vl",name:"Veurne",inBE:true,chunk:9},
+  "luik-stad":{label:"Luik (Liège)",kind:"stad-wa",name:"Liège",inBE:true,chunk:9},
+  charleroi:{label:"Charleroi",kind:"stad-wa",name:"Charleroi",inBE:true,chunk:9},
+  "namen-stad":{label:"Namen (Namur)",kind:"stad-wa",name:"Namur",inBE:true,chunk:9},
+  bergen:{label:"Bergen (Mons)",kind:"stad-wa",name:"Mons",inBE:true,chunk:9},
+  "la-louviere":{label:"La Louvière",kind:"stad-wa",name:"La Louvière",inBE:true,chunk:9},
+  doornik:{label:"Doornik (Tournai)",kind:"stad-wa",name:"Tournai",inBE:true,chunk:9},
+  verviers:{label:"Verviers",kind:"stad-wa",name:"Verviers",inBE:true,chunk:9},
+  aarlen:{label:"Aarlen (Arlon)",kind:"stad-wa",name:"Arlon",inBE:true,chunk:9},
+  waver:{label:"Waver (Wavre)",kind:"stad-wa",name:"Wavre",inBE:true,chunk:9},
+  aat:{label:"Aat (Ath)",kind:"stad-wa",name:"Ath",inBE:true,chunk:9},
+  nijvel:{label:"Nijvel (Nivelles)",kind:"stad-wa",name:"Nivelles",inBE:true,chunk:9},
+  bastenaken:{label:"Bastenaken (Bastogne)",kind:"stad-wa",name:"Bastogne",inBE:true,chunk:9},
+  hoei:{label:"Hoei (Huy)",kind:"stad-wa",name:"Huy",inBE:true,chunk:9},
+  seraing:{label:"Seraing",kind:"stad-wa",name:"Seraing",inBE:true,chunk:9},
+  moeskroen:{label:"Moeskroen (Mouscron)",kind:"stad-wa",name:"Mouscron",inBE:true,chunk:9},
+  dinant:{label:"Dinant",kind:"stad-wa",name:"Dinant",inBE:true,chunk:9},
+  ciney:{label:"Ciney",kind:"stad-wa",name:"Ciney",inBE:true,chunk:9},
+  rochefort:{label:"Rochefort",kind:"stad-wa",name:"Rochefort",inBE:true,chunk:9},
+  spa:{label:"Spa",kind:"stad-wa",name:"Spa",inBE:true,chunk:9},
+  malmedy:{label:"Malmedy",kind:"stad-wa",name:"Malmedy",inBE:true,chunk:9},
+  eupen:{label:"Eupen",kind:"stad-wa",name:"Eupen",inBE:true,chunk:9},
+  virton:{label:"Virton",kind:"stad-wa",name:"Virton",inBE:true,chunk:9},
+  bouillon:{label:"Bouillon",kind:"stad-wa",name:"Bouillon",inBE:true,chunk:9},
+  zinnik:{label:"Zinnik (Soignies)",kind:"stad-wa",name:"Soignies",inBE:true,chunk:9},
+  waterloo:{label:"Waterloo",kind:"stad-wa",name:"Waterloo",inBE:true,chunk:9}
+};
+const GROUP_ORDER=[["land","Heel België"],["gewest","Gewesten"],["provincie","Provincies"],["stad-vl","Steden — Vlaanderen"],["stad-wa","Steden — Wallonië"]];
 
-/* ---- nummer-helpers (altijd BE) ---- */
+const NETS=["","02 Brussel","03 Antwerpen","09 Gent","010 Waals-Brabant","011 Hasselt","012 Tongeren","013 Diest","014 Turnhout","015 Mechelen","016 Leuven","019 Waver","050 Brugge","051 Roeselare","052 Dendermonde","053 Aalst","054 Ninove","055 Ronse","056 Kortrijk","057 Ieper","058 Veurne","059 Oostende","060 Chimay","061 Bastenaken","063 Aarlen","064 Bergen","065 Charleroi","067 Nijvel","068 Doornik","069 Aat","071 Charleroi","080 Stavelot","081 Namen","082 Dinant","083 Ciney","084 Marche","085 Hoei","086 Durbuy","087 Verviers","089 Genk"];
+
+/* ================= STATE ================= */
+const state={running:false,abort:false,items:[],seen:new Set(),ctrl:null,prog:0,progTotal:1,failed:[],mode:"alles",cat:"alles",target:"iedereen",net:"",osmExtra:""};
+let enabled=new Set();
+
+/* ================= NUMMER-HELPERS ================= */
 function normPhone(p){let s=String(p||"").replace(/[^\d+]/g,"");if(s.startsWith("+32"))s="0"+s.slice(3);else if(s.startsWith("0032"))s="0"+s.slice(4);return s;}
-function isBelgian(p){const s=normPhone(p);return /^0\d{8}$/.test(s)||/^04\d{8}$/.test(s);}
+function isBelgian(p){const s=normPhone(p);return /^0\d{8}$/.test(s);}
 function phoneType(p){const s=normPhone(p);if(/^04\d{8}$/.test(s))return "mobiel";if(/^0\d{8}$/.test(s))return "vast";return "onbekend";}
 function toPlus32(p){const s=normPhone(p);
   if(/^04\d{8}$/.test(s))return "+32 "+s.slice(1,4)+" "+s.slice(4,6)+" "+s.slice(6,8)+" "+s.slice(8,10);
@@ -146,24 +275,36 @@ function toPlus32(p){const s=normPhone(p);
   if(/^0\d{8}$/.test(s))return "+32 "+s.slice(1,4)+" "+s.slice(4,6)+" "+s.slice(6,8)+" "+s.slice(8,9);
   return String(p||"");}
 function extractPhones(text){const out=[];let m,re1=/href=["']tel:([^"']+)/gi;while((m=re1.exec(text)))out.push(m[1]);
-  const plain=text.replace(/<[^>]+>/g," ").replace(/&nbsp;/g," ");
+  const plain=String(text).replace(/<[^>]+>/g," ").replace(/&nbsp;/g," ");
   const re2=/(\+?\d[\d\s().\/-]{6,18}\d)/g;
   while((m=re2.exec(plain))){const raw=m[1].replace(/\s+/g," ").trim();const d=raw.replace(/\D/g,"");if(d.length>=8&&d.length<=15)out.push(raw);}
   return [...new Set(out.map(x=>x.trim()))];}
-const pageTitle=t=>{const m=t.match(/<title[^>]*>([\s\S]*?)<\/title>/i);return m?m[1].replace(/\s+/g," ").trim():"";};
+const pageTitle=t=>{const m=String(t).match(/<title[^>]*>([\s\S]*?)<\/title>/i);return m?m[1].replace(/\s+/g," ").trim():"";};
+function absLinks(html,base){const out=[];let m,re=/href=["']([^"'#]+)["']/gi;
+  while((m=re.exec(html))){let u=m[1];if(u.startsWith("//"))u="https:"+u;else if(u.startsWith("/")){try{u=new URL(u,base).href;}catch(e){continue;}}if(/^https?:\/\//.test(u))out.push(u);}
+  return out;}
+function goodUrl(u){try{const h=new URL(u).hostname;if(/\.(png|jpe?g|svg|gif|css|js|pdf|ico|woff2?|webp|mp4|zip|xml)$/i.test(u))return false;
+  if(/(duckduckgo|bing|microsoft|msn|brave|ecosia|mojeek|startpage|google|gstatic|w3\.org|wikimedia|facebook|twitter|instagram|linkedin|youtube|pinterest|tiktok)\./i.test(h))return false;
+  return true;}catch(e){return false;}}
 
-/* ---- UI ---- */
+/* ================= UI ================= */
 function log(m,cls=""){const d=document.createElement("div");if(cls)d.className="l-"+cls;d.textContent=m;const L=$("log");L.appendChild(d);while(L.childNodes.length>300)L.removeChild(L.firstChild);L.scrollTop=L.scrollHeight;}
 function progress(p){$("bar").style.width=Math.max(0,Math.min(100,p))+"%";}
 function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),2200);}
+function updateCount(){$("cnt").textContent=state.items.length.toLocaleString("nl-NL");$("resCount").textContent=state.items.length.toLocaleString("nl-NL")+" zichtbaar";}
 
-/* ---- Overpass met mirror-fix + leegte-detectie ---- */
+/* ================= OVERPASS ================= */
+async function overpassPost(ep,q){const res=await fetch(ep,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"data="+encodeURIComponent(q),signal:(state.ctrl=new AbortController()).signal});
+  if(!res.ok)throw new Error("HTTP "+res.status);const t=await res.text();if(/runtime error/i.test(t))throw new Error("bezet");
+  const j=JSON.parse(t);if(!j.elements)throw new Error("leeg");return j;}
+async function overpassGet(ep,q){const res=await fetch(ep+"?data="+encodeURIComponent(q),{signal:(state.ctrl=new AbortController()).signal});
+  if(!res.ok)throw new Error("HTTP "+res.status);const t=await res.text();if(/runtime error/i.test(t))throw new Error("bezet");
+  const j=JSON.parse(t);if(!j.elements)throw new Error("leeg");return j;}
 async function overpass(query,tries=6,wantData=true){let lastErr=null,emptyRes=null;
   for(let a=0;a<tries;a++){for(let i=0;i<ENDPOINTS.length;i++){if(state.abort)throw new Error("abort");const ep=ENDPOINTS[(i+a)%ENDPOINTS.length];
-    try{state.ctrl=new AbortController();const res=await fetch(ep,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"data="+encodeURIComponent(query),signal:state.ctrl.signal});
-      if(!res.ok)throw new Error("HTTP "+res.status);const t=await res.text();if(/runtime error/i.test(t))throw new Error("bezet");
-      const j=JSON.parse(t);if(!j.elements)throw new Error("leeg");if(wantData&&j.elements.length===0){emptyRes=j;await sleep(120);continue;}return j;
-    }catch(e){if(state.abort)throw new Error("abort");lastErr=e;await sleep(250);}}
+    try{const j=await overpassPost(ep,query);if(wantData&&j.elements.length===0){emptyRes=j;await sleep(120);continue;}return j;}
+    catch(e){if(state.abort)throw new Error("abort");lastErr=e;await sleep(200);
+      try{const j=await overpassGet(ep,query);if(wantData&&j.elements.length===0){emptyRes=j;continue;}return j;}catch(e2){lastErr=e2;await sleep(150);}}}
     if(emptyRes)return emptyRes;}
   if(emptyRes)return emptyRes;throw lastErr||new Error("alle mirrors faalden");}
 async function fetchVia(url,firstKey){const order=[firstKey,...PROXY_ORDER.filter(k=>k!==firstKey)];let err;
@@ -172,105 +313,255 @@ async function fetchVia(url,firstKey){const order=[firstKey,...PROXY_ORDER.filte
       const txt=await res.text();if(txt&&txt.length>40)return{txt,proxy:key};throw new Error("leeg");}catch(e){err=e;}}
   throw err;}
 
-/* ---- queries ---- */
-function qFindArea(){const p=REGIONS[$("regio").value];if(p.rel)return `[out:json][timeout:120];rel(${p.rel});out ids;`;
+/* ================= QUERIES ================= */
+function qFindArea(){const p=REGIONS[$("regio").value];
+  if(p.rel)return `[out:json][timeout:120];rel(${p.rel});out ids;`;
   const scope=p.inBE?`area["ISO3166-1"="BE"][admin_level=2]->.b;`:"";const inA=p.inBE?"(area.b)":"";
-  return `[out:json][timeout:120];${scope}rel["boundary"="administrative"]["admin_level"="${p.admin}"]["name"~"${p.name}",i]${inA};out ids;`;}
+  const lvl=(p.kind==="stad-vl"||p.kind==="stad-wa")?`["admin_level"~"^(7|8)$"]`:`["admin_level"="${p.admin}"]`;
+  return `[out:json][timeout:120];${scope}rel["boundary"="administrative"]${lvl}["name"~"^${p.name}$",i]${inA};out ids;`;}
 const qChildren=(a,l)=>`[out:json][timeout:300];area(${a})->.a;rel["boundary"="administrative"]["admin_level"]="${l}"](area.a);out tags;`;
-const qData=(a,to)=>`[out:json][timeout:${to}];area(${a})->.a;(node[~"^(contact:)?(phone|mobile)$"~"."](area.a);way[~"^(contact:)?(phone|mobile)$"~"."](area.a);relation[~"^(contact:)?(phone|mobile)$"~"."](area.a););out center tags;`;
-const qCount=a=>qData(a,120).replace("out center tags;","out count;");
-function parseOsm(els,cityHint){const out=[];for(const el of els){const t=el.tags||{};const phone=t.phone||t["contact:phone"]||t.mobile||t["contact:mobile"]||"";
-  out.push({source:"osm",id:"osm/"+el.type+"/"+el.id,name:t.name||"",phone,type:phoneType(phone),street:t["addr:street"]||"",housenumber:t["addr:housenumber"]||"",postcode:t["addr:postcode"]||"",city:t["addr:city"]||cityHint||"",url:t.website||t["contact:website"]||""});}return out;}
+const qData=(a,to,extra="")=>`[out:json][timeout:${to}];area(${a})->.a;(node[~"^(contact:)?(phone|mobile)$"~"."]${extra}(area.a);way[~"^(contact:)?(phone|mobile)$"~"."]${extra}(area.a);relation[~"^(contact:)?(phone|mobile)$"~"."]${extra}(area.a););out center tags;`;
+const qCount=(a,extra="")=>qData(a,120,extra).replace("out center tags;","out count;");
+
+function isBusiness(t){return !!(t.name||t.shop||t.amenity||t.office||t.craft||t.healthcare||t.tourism||t.leisure||t.industrial||t.company);}
+function parseOsm(els,cityHint){const out=[];for(const el of els){const t=el.tags||{};const phone=t.phone||t["contact:phone"]||t.mobile||t["contact:mobile"]||t["phone:BE"]||t.whatsapp||"";
+  out.push({source:"osm",id:"osm/"+el.type+"/"+el.id,name:t.name||"",phone,type:phoneType(phone),cat:isBusiness(t)?"zakelijk":"particulier",street:t["addr:street"]||"",housenumber:t["addr:housenumber"]||"",postcode:t["addr:postcode"]||"",city:t["addr:city"]||cityHint||"",url:t.website||t["contact:website"]||""});}return out;}
+
 function addItem(it){if(!it.phone)return false;if(!isBelgian(it.phone))return false;
   if(state.mode==="mobiel"&&it.type!=="mobiel")return false;if(state.mode==="vast"&&it.type!=="vast")return false;
+  if(state.cat!=="alles"&&it.cat!=="onbekend"&&it.cat!==state.cat)return false;
+  if(state.net&&it.type==="vast"&&!normPhone(it.phone).startsWith(state.net))return false;
   const alt=(it.phone+"|"+it.street+"|"+it.housenumber+"|"+it.name).toLowerCase();
   if(state.seen.has(it.id)||state.seen.has(alt))return false;state.seen.add(it.id);state.seen.add(alt);state.items.push(it);return true;}
 
-/* ---- OSM ---- */
+/* ================= HARVEST (webpagina's) ================= */
+async function harvest(urls,label,source){let idx=0;const seenU=new Set();let n=0;
+  async function worker(){while(idx<urls.length&&!state.abort){const u=urls[idx++];if(seenU.has(u))continue;seenU.add(u);
+    try{const {txt}=await fetchVia(u,"allorigins");const title=pageTitle(txt);
+      for(const ph of extractPhones(txt))if(addItem({source,id:source+"|"+u+"|"+ph,name:title,phone:ph,type:phoneType(ph),cat:"onbekend",street:"",housenumber:"",postcode:"",city:"",url:u}))n++;}catch(e){}
+    state.prog++;progress(Math.min(99,state.prog/state.progTotal*100));updateCount();render();await sleep(60);}}
+  await Promise.all(Array.from({length:4},worker));log(label+": +"+n,"ok");}
+
+/* ================= BRON: OSM ================= */
 async function runOsm(){const p=REGIONS[$("regio").value];let areaId=null;
   for(let a=0;a<8&&!state.abort&&!areaId;a++){try{const fa=await overpass(qFindArea(),4);areaId=p.rel?(3600000000+p.rel):(fa.elements[0]?3600000000+fa.elements[0].id:null);}catch(e){log("Gebied zoeken… ("+e.message+")","warn");await sleep(1200);}}
   if(!areaId)throw new Error("Gebied niet gevonden");log("Gebied gevonden.","ok");
   let list=[];for(let a=0;a<8&&!state.abort&&!list.length;a++){try{const ch=await overpass(qChildren(areaId,$("chunkLevel").value),4);list=ch.elements.map(e=>({id:3600000000+e.id,name:(e.tags&&e.tags.name)||""}));}catch(e){log("Gebieden ophalen… ("+e.message+")","warn");await sleep(1200);}}
-  if(!list.length)list=[{id:areaId,name:"(geheel)"}];state.progTotal+=list.length;
+  if(!list.length)list=[{id:areaId,name:(p.name||"(geheel)")}];state.progTotal+=list.length;
   let queue=list.slice(),round=0,added=0;
   while(queue.length&&!state.abort&&round<3){round++;const failed=[];
-    for(const m of queue){if(state.abort)break;try{const d=await overpass(qData(m.id,180),6);for(const it of parseOsm(d.elements,m.name))if(addItem(it))added++;}catch(e){failed.push(m);}
+    for(const m of queue){if(state.abort)break;try{const d=await overpass(qData(m.id,180,state.osmExtra),6);for(const it of parseOsm(d.elements,m.name))if(addItem(it))added++;}catch(e){failed.push(m);}
       state.prog++;progress(Math.min(99,state.prog/state.progTotal*100));updateCount();render();await sleep(120);}
     queue=failed;state.failed=queue.slice();if(queue.length)log(queue.length+" gebieden opnieuw…","warn");await sleep(1000);}
   log("OSM: +"+added+" nummers","ok");}
 
-/* ---- Wikidata ---- */
+/* ================= BRON: WIKIDATA ================= */
 const wdtQuery=(qid,limit)=>`SELECT ?item ?itemLabel ?phone ?street ?postcode ?cityLabel WHERE { ?item wdt:P17 wd:${qid}; wdt:P1329 ?phone. OPTIONAL { ?item wdt:P669 ?street. } OPTIONAL { ?item wdt:P281 ?postcode. } OPTIONAL { ?item wdt:P131 ?city. } SERVICE wikibase:label { bd:serviceParam wikibase:language "nl,fr,en". } } LIMIT ${limit}`;
 async function runWikidata(){for(let a=0;a<4&&!state.abort;a++){try{log("Wikidata…");
   const res=await fetch("https://query.wikidata.org/sparql",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded",Accept:"application/sparql-results+json"},body:"query="+encodeURIComponent(wdtQuery("Q31",8000))});
   if(!res.ok)throw new Error("HTTP "+res.status);const j=await res.json();let n=0;
-  for(const b of j.results.bindings){const phone=b.phone?.value||"";if(addItem({source:"wikidata",id:"wdt/"+b.item.value,name:b.itemLabel?.value||"",phone,type:phoneType(phone),street:b.street?.value||"",housenumber:"",postcode:b.postcode?.value||"",city:b.cityLabel?.value||"",url:""}))n++;}
+  for(const b of j.results.bindings){const phone=b.phone?.value||"";if(addItem({source:"wikidata",id:"wdt/"+b.item.value,name:b.itemLabel?.value||"",phone,type:phoneType(phone),cat:"zakelijk",street:b.street?.value||"",housenumber:"",postcode:b.postcode?.value||"",city:b.cityLabel?.value||"",url:""}))n++;}
   log("Wikidata: +"+n,"ok");return;}catch(e){log("Wikidata… ("+e.message+")","warn");await sleep(1200);}}}
 
-/* ---- web scrape ---- */
-async function scrapeUrls(urls,label,source){let idx=0;
-  async function worker(){while(idx<urls.length&&!state.abort){const u=urls[idx++];
-    try{const {txt}=await fetchVia(u,"allorigins");const title=pageTitle(txt);
-      for(const ph of extractPhones(txt))addItem({source,id:source+"/"+u+"/"+ph,name:title,phone:ph,type:phoneType(ph),street:"",housenumber:"",postcode:"",city:"",url:u});}catch(e){}
-    state.prog++;progress(Math.min(99,state.prog/state.progTotal*100));updateCount();render();await sleep(80);}}
-  await Promise.all(Array.from({length:3},worker));log(label+" klaar.","ok");}
-async function runDdg(){const raw=REGIONS[$("regio").value].name;let urls=[];
-  try{const {txt}=await fetchVia("https://html.duckduckgo.com/html/?q="+encodeURIComponent(raw+" bedrijf telefoon"),"allorigins");
-    const uddg=[...txt.matchAll(/uddg=([^&"']+)/g)].map(m=>{try{return decodeURIComponent(m[1]);}catch(e){return m[1];}});
-    urls=[...new Set(uddg)].filter(u=>/^https?:\/\//.test(u)&&!/\.(png|jpe?g|svg|gif|css|js|pdf|ico)$/i.test(u)).slice(0,60);}catch(e){log("DuckDuckGo… ("+e.message+")","warn");}
-  if(urls.length){state.progTotal+=urls.length;await scrapeUrls(urls,"DuckDuckGo","web");}}
+/* ================= BRON: WIKIPEDIA (geosearch) ================= */
+async function runWikipedia(){const p=REGIONS[$("regio").value];let lat=null,lon=null;
+  try{const r=await fetchVia("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=be&q="+encodeURIComponent((p.name||p.label).replace(/\s*\(.*\)$/,"")),"allorigins");
+    const j=JSON.parse(r.txt);if(j[0]){lat=j[0].lat;lon=j[0].lon;}}catch(e){}
+  if(lat===null){log("Wikipedia: geen coördinaten","warn");return;}
+  let titles=[];try{const gs=await fetchVia("https://nl.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord="+lat+"%7C"+lon+"&gsradius=10000&gslimit=300&format=json","allorigins");
+    const gj=JSON.parse(gs.txt);titles=(gj.query&&gj.query.geosearch||[]).map(x=>x.title);}catch(e){log("Wikipedia… ("+e.message+")","warn");return;}
+  let n=0;for(let i=0;i<titles.length&&!state.abort;i+=20){const batch=titles.slice(i,i+20);
+    try{const r=await fetchVia("https://nl.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=1&exlimit=20&format=json&titles="+encodeURIComponent(batch.join("|")),"allorigins");
+      const j=JSON.parse(r.txt);const pages=j.query&&j.query.pages||{};
+      for(const k in pages){const pg=pages[k];const txt=pg.extract||"";const title=pg.title||"";
+        for(const ph of extractPhones(txt))if(addItem({source:"wikipedia",id:"wiki/"+title+"|"+ph,name:title,phone:ph,type:phoneType(ph),cat:"onbekend",street:"",housenumber:"",postcode:"",city:"",url:"https://nl.wikipedia.org/wiki/"+encodeURIComponent(title)}))n++;}}catch(e){}
+    state.prog++;progress(Math.min(99,state.prog/state.progTotal*100));updateCount();render();await sleep(80);}
+  log("Wikipedia: +"+n,"ok");}
 
-/* ---- weergave ---- */
-function updateCount(){$("cnt").textContent=state.items.length.toLocaleString("nl-NL");$("resCount").textContent=state.items.length.toLocaleString("nl-NL")+" zichtbaar";}
+/* ================= BRONNEN: ZOEKMACHINES ================= */
+function linksDdg(t){return [...t.matchAll(/uddg=([^&"']+)/g)].map(m=>dec(m[1]));}
+function linksGeneric(t,base){return absLinks(t,base||"https://x/").filter(goodUrl);}
+const ENGINES={
+  ddg:{label:"DuckDuckGo",u:q=>"https://html.duckduckgo.com/html/?q="+encodeURIComponent(q),links:linksDdg},
+  bing:{label:"Bing",u:q=>"https://www.bing.com/search?q="+encodeURIComponent(q)+"&count=40",links:t=>linksGeneric(t,"https://www.bing.com/")},
+  mojeek:{label:"Mojeek",u:q=>"https://www.mojeek.com/search?q="+encodeURIComponent(q),links:t=>linksGeneric(t,"https://www.mojeek.com/")},
+  brave:{label:"Brave Search",u:q=>"https://search.brave.com/search?q="+encodeURIComponent(q),links:t=>linksGeneric(t,"https://search.brave.com/")},
+  ecosia:{label:"Ecosia",u:q=>"https://www.ecosia.org/search?q="+encodeURIComponent(q),links:t=>linksGeneric(t,"https://www.ecosia.org/")}
+};
+function buildQuery(){const p=REGIONS[$("regio").value];const base=(p.label||"").replace(/\s*\(.*\)$/,"");
+  const kw=$("kw").value.trim();const extra=(state.target==="particulier")?" vast telefoon":(state.target==="zorg"?" telefoon dokter apotheek rusthuis":" telefoon");
+  return (kw?kw+" ":"")+base+extra;}
+async function runEngine(key){const e=ENGINES[key];const q=buildQuery();let urls=[],txt="";
+  try{const r=await fetchVia(e.u(q),"allorigins");txt=r.txt;urls=e.links(txt).filter(goodUrl);}catch(err){log(e.label+": "+err.message,"warn");return;}
+  let n=0;const title=e.label+": "+q;
+  for(const ph of extractPhones(txt))if(addItem({source:key+"-serp",id:key+"-serp|"+ph,name:title,phone:ph,type:phoneType(ph),cat:"onbekend",street:"",housenumber:"",postcode:"",city:"",url:""}))n++;
+  urls=[...new Set(urls)].slice(0,50);
+  if(urls.length){state.progTotal+=urls.length;await harvest(urls,e.label,key);}
+  else log(e.label+": +"+n+" (uit snippets)","ok");}
+
+/* ================= BRONNEN: GIDSEN ================= */
+const DIRECTORIES={
+  goudengids:{label:"Goudengids",u:q=>"https://www.goudengids.be/zoeken?q="+encodeURIComponent(q)},
+  pagesdor:{label:"Pages d'Or",u:q=>"https://www.pagesdor.be/zoeken?q="+encodeURIComponent(q)},
+  infobel:{label:"Infobel",u:q=>"https://www.infobel.com/nl/belgium/search?q="+encodeURIComponent(q)},
+  gids1207:{label:"1207 Witte Gids",u:q=>"https://www.1207.be/nl/search?q="+encodeURIComponent(q)}
+};
+async function runDirectory(key){const d=DIRECTORIES[key];const q=buildQuery();let txt="",urls=[];
+  try{const r=await fetchVia(d.u(q),"allorigins");txt=r.txt;urls=absLinks(txt,d.u(q)).filter(goodUrl);}catch(err){log(d.label+": "+err.message,"warn");return;}
+  let n=0;const title=d.label+": "+q;
+  for(const ph of extractPhones(txt))if(addItem({source:key,id:key+"|"+ph,name:title,phone:ph,type:phoneType(ph),cat:"onbekend",street:"",housenumber:"",postcode:"",city:"",url:d.u(q)}))n++;
+  urls=[...new Set(urls)].slice(0,40);
+  if(urls.length){state.progTotal+=urls.length;await harvest(urls,d.label,key);}
+  log(d.label+": +"+n,"ok");}
+
+/* ================= BRON: KBO ================= */
+async function runKbo(){const q=buildQuery();let txt="";
+  try{const r=await fetchVia("https://kbopub.economie.fgov.be/kbopub/zoeknaamfonetischform.html?searchTerm="+encodeURIComponent($("kw").value.trim()||REGIONS[$("regio").value].label.replace(/\s*\(.*\)$/,""))+"&_lang=nl","allorigins");txt=r.txt;}
+  catch(err){log("KBO: "+err.message,"warn");return;}
+  let n=0;for(const ph of extractPhones(txt))if(addItem({source:"kbo",id:"kbo|"+ph,name:"KBO: "+q,phone:ph,type:phoneType(ph),cat:"zakelijk",street:"",housenumber:"",postcode:"",city:"",url:""}))n++;
+  const urls=[...new Set(absLinks(txt,"https://kbopub.economie.fgov.be/").filter(goodUrl))].slice(0,30);
+  if(urls.length){state.progTotal+=urls.length;await harvest(urls,"KBO","kbo");}
+  log("KBO: +"+n,"ok");}
+
+/* ================= BRON: WEBSITES (uit OSM) ================= */
+const CONTACT_PATHS=["","/contact","/contact-us","/contacteer","/contacteer-ons","/over-ons","/about","/nl/contact","/fr/contact","/contact.html","/contact.php"];
+async function runWebsites(){let bases=[...new Set(state.items.filter(x=>x.source==="osm"&&x.url).map(x=>x.url).filter(u=>/^https?:\/\//.test(u)))].slice(0,120);
+  if(!bases.length){log("Websites: geen OSM-links","warn");return;}
+  const urls=[];for(const b of bases){for(const pth of CONTACT_PATHS.slice(0,4)){try{urls.push(new URL(pth,b).href);}catch(e){}}}
+  state.progTotal+=urls.length;await harvest([...new Set(urls)],"Websites","site");}
+
+/* ================= BRON: SITEMAPS ================= */
+async function runSitemaps(){const bases=[...new Set(state.items.filter(x=>x.source==="osm"&&x.url).map(x=>x.url).filter(u=>/^https?:\/\//.test(u)))].slice(0,60);
+  const urls=[];
+  for(const b of bases){if(state.abort)break;
+    try{const {txt}=await fetchVia(new URL("/sitemap.xml",b).href,"allorigins");
+      const locs=[...txt.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)].map(m=>m[1]).filter(u=>/contact|over-ons|about|team/i.test(u)).slice(0,6);
+      for(const u of locs)urls.push(u);}catch(e){}
+    await sleep(40);}
+  if(!urls.length){log("Sitemaps: niets gevonden","warn");return;}
+  state.progTotal+=urls.length;await harvest([...new Set(urls)],"Sitemaps","sitemap");}
+
+/* ================= BRON: EIGEN URL'S / BESTAND ================= */
+async function runCustom(){const urls=[];const raw=$("customUrls").value.split(/\s+/).filter(Boolean);
+  for(const u of raw){if(/^https?:\/\//.test(u))urls.push(u);}
+  const fileTxt=state.fileTxt||"";
+  for(const u of fileTxt.split(/\s+/)){if(/^https?:\/\//.test(u))urls.push(u);}
+  if(fileTxt){for(const ph of extractPhones(fileTxt))addItem({source:"eigen",id:"eigen|"+ph,name:"Eigen invoer",phone:ph,type:phoneType(ph),cat:"onbekend",street:"",housenumber:"",postcode:"",city:"",url:""});}
+  if(!urls.length){log("Eigen URL's: niets","warn");return;}
+  state.progTotal+=urls.length;await harvest([...new Set(urls)],"Eigen URL's","eigen");}
+
+/* ================= BRON-REGISTER ================= */
+const SOURCES={
+  osm:{label:"OpenStreetMap (basis)",def:true,run:runOsm},
+  wikidata:{label:"Wikidata (bedrijven)",def:true,run:runWikidata},
+  websites:{label:"Bedrijfswebsites (OSM)",def:true,run:runWebsites},
+  ddg:{label:"DuckDuckGo",def:true,run:()=>runEngine("ddg")},
+  bing:{label:"Bing",def:false,run:()=>runEngine("bing")},
+  mojeek:{label:"Mojeek",def:false,run:()=>runEngine("mojeek")},
+  brave:{label:"Brave Search",def:false,run:()=>runEngine("brave")},
+  ecosia:{label:"Ecosia",def:false,run:()=>runEngine("ecosia")},
+  goudengids:{label:"Goudengids",def:false,run:()=>runDirectory("goudengids")},
+  pagesdor:{label:"Pages d'Or",def:false,run:()=>runDirectory("pagesdor")},
+  infobel:{label:"Infobel",def:false,run:()=>runDirectory("infobel")},
+  gids1207:{label:"1207 (witte gids)",def:false,run:()=>runDirectory("gids1207")},
+  kbo:{label:"KBO (ondernemingen)",def:false,run:runKbo},
+  wikipedia:{label:"Wikipedia (geosearch)",def:false,run:runWikipedia},
+  sitemaps:{label:"Sitemaps van websites",def:false,run:runSitemaps},
+  eigen:{label:"Eigen URL's / bestand",def:false,run:runCustom}
+};
+
+/* ================= RENDER ================= */
 function render(){const list=state.items.slice().sort((a,b)=>(a.city||"").localeCompare(b.city||"","nl")||(a.name||"").localeCompare(b.name||"","nl"));
   $("list").innerHTML=list.slice(0,400).map(x=>`<div class="item">
-    <div class="nm">${esc(x.name||"(zonder naam)")}<span class="badge ${x.type}">${x.type}</span></div>
+    <div class="nm">${esc(x.name||"(zonder naam)")}<span class="badge ${x.type}">${x.type}</span>${x.cat!=="onbekend"?`<span class="badge ${x.cat}">${x.cat}</span>`:""}</div>
     <a class="ph" href="tel:${toPlus32(x.phone).replace(/\s/g,"")}">${esc(toPlus32(x.phone))}</a>
-    <div class="mt">${esc([x.street,x.housenumber].filter(Boolean).join(" "))}${x.city?" · "+esc(x.city):""}</div>
+    <div class="mt">${esc([x.street,x.housenumber].filter(Boolean).join(" "))}${x.city?" · "+esc(x.city):""}${x.url?` · <a href="${esc(x.url)}" target="_blank" style="color:var(--dim)">bron</a>`:""}</div>
   </div>`).join("");
-  if(!list.length)$("list").innerHTML='<div class="hint">Nog geen nummers. Kies een regio en druk Start.</div>';}
+  if(!list.length)$("list").innerHTML='<div class="hint">Nog geen nummers. Kies regio + bronnen en druk Start.</div>';}
 function resetAll(){state.items=[];state.seen.clear();state.failed=[];state.prog=0;state.progTotal=1;progress(0);updateCount();render();}
 
-/* ---- run ---- */
+/* ================= RUN ================= */
 async function run(){if(state.running)return;state.running=true;state.abort=false;
-  $("btnStart").classList.add("hide");$("btnStop").classList.remove("hide");progress(0);log("=== Start ("+state.mode+") ===","ok");
-  try{
-    await runOsm();
-    if(!state.abort)try{await runWikidata();}catch(e){}
-    if(adv.sites&&!state.abort){const sites=[...new Set(state.items.filter(x=>x.source==="osm"&&x.url).map(x=>x.url))].filter(u=>/^https?:\/\//.test(u)).slice(0,120);if(sites.length){state.progTotal+=sites.length;await scrapeUrls(sites,"Websites","site");}}
-    if(adv.ddg&&!state.abort)try{await runDdg();}catch(e){}
-    log("=== Klaar: "+state.items.length+" nummers ===","ok");
-  }catch(e){log("Fout: "+e.message,"err");}
-  finally{state.running=false;$("btnStart").classList.remove("hide");$("btnStop").classList.add("hide");updateCount();render();if(state.items.length)toast(state.items.length+" nummers gevonden");}}
+  $("btnStart").classList.add("hide");$("btnStop").classList.remove("hide");progress(0);
+  log("=== Start | doelgroep="+state.target+" | soort="+state.mode+" | cat="+state.cat+(state.net?" | net="+state.net:"")+" ===","ok");
+  const list=Object.keys(SOURCES).filter(k=>enabled.has(k));
+  if(!list.length)log("Geen bronnen aan!","warn");
+  try{for(const k of list){if(state.abort)break;log("▶ "+SOURCES[k].label);
+      try{await SOURCES[k].run();}catch(e){if(e.message!=="abort")log(SOURCES[k].label+" fout: "+e.message,"err");}}
+    log("=== Klaar: "+state.items.length+" nummers ===","ok");}
+  catch(e){log("Fout: "+e.message,"err");}
+  finally{state.running=false;$("btnStart").classList.remove("hide");$("btnStop").classList.add("hide");updateCount();render();
+    if(state.items.length){toast(state.items.length+" nummers gevonden");if($("autoDl").checked)doExport($("autoFmt").value,false);}}}
 async function testAll(){$("btnTest").disabled=true;log("--- Test ---");
   try{const p=REGIONS[$("regio").value];const fa=await overpass(qFindArea(),8);const areaId=p.rel?(3600000000+p.rel):3600000000+fa.elements[0].id;
     const c=await overpass(qCount(areaId),8);log("OSM OK: "+(c.elements[0]?.tags?.total||0)+" nummers ✔","ok");
     const {proxy}=await fetchVia("https://example.com","allorigins");log("Proxy OK via "+proxy+" ✔","ok");log("Alles werkt. Druk Start.","ok");}
   catch(e){log("Test: "+e.message,"err");}finally{$("btnTest").disabled=false;}}
 
-/* ---- export ---- */
-function download(name,text,type){const b=new Blob([text],{type});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);}
-function doExport(){if(!state.items.length){toast("Nog geen nummers");return;}
-  const list=state.items.slice().sort((a,b)=>(a.city||"").localeCompare(b.city||"","nl"));
-  const head=["naam","telefoon","type","straat","nummer","postcode","gemeente"];
-  const rows=[head.join(";")].concat(list.map(x=>[x.name,toPlus32(x.phone),x.type,x.street,x.housenumber,x.postcode,x.city].map(v=>{let s=String(v||"").replace(/;/g,",");if(s.includes('"'))s='"'+s.replace(/"/g,'""')+'"';return s;}).join(";")));
-  const d=new Date().toISOString().slice(0,10);
-  download("nummers_"+$("regio").value+"_"+state.mode+"_"+d+".csv","\uFEFF"+rows.join("\r\n"),"text/csv;charset=utf-8");
-  toast("Geëxporteerd: "+list.length+" nummers");log("Geëxporteerd: "+list.length,"ok");
-  resetAll();log("Lijst gewist — nieuwe zoektocht.","ok");}
+/* ================= BESTAND OPSLAAN (mobiel-vriendelijk) ================= */
+async function saveFile(name,text,type,useShare){
+  const blob=new Blob([text],{type});
+  const file=(typeof File!=="undefined")?new File([blob],name,{type}):null;
+  if(useShare&&file&&navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],title:name});return true;}catch(e){if(e&&e.name==="AbortError")return true;}
+  }
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download=name;a.rel="noopener";a.style.display="none";
+  document.body.appendChild(a);
+  try{a.click();}catch(e){window.open(url,"_blank");}
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},6000);
+  return true;
+}
 
-/* ---- events ---- */
-$("regio").innerHTML=Object.entries(REGIONS).map(([k,v])=>`<option value="${k}">${esc(v.name)}</option>`).join("");
+/* ================= EXPORT (CSV + TXT + delen) ================= */
+function buildExport(fmt){const list=state.items.slice().sort((a,b)=>(a.city||"").localeCompare(b.city||"","nl"));
+  const d=new Date().toISOString().slice(0,10);
+  const base="nummers_"+$("regio").value+"_"+state.target+"_"+state.mode+"_"+d;
+  if(fmt==="csv"){
+    const head=["naam","telefoon","type","soort","bron","straat","nummer","postcode","gemeente","url"];
+    const rows=[head.join(";")].concat(list.map(x=>[x.name,toPlus32(x.phone),x.type,x.cat,x.source,x.street,x.housenumber,x.postcode,x.city,x.url].map(v=>{let s=String(v||"").replace(/;/g,",");if(s.includes('"'))s='"'+s.replace(/"/g,'""')+'"';return s;}).join(";")));
+    return {name:base+".csv",text:"\uFEFF"+rows.join("\r\n"),type:"text/csv;charset=utf-8"};
+  }
+  const head=["telefoon","naam","type","soort","gemeente","bron"];
+  const lines=[head.join("\t")].concat(list.map(x=>[toPlus32(x.phone),x.name,x.type,x.cat,x.city,x.source].map(v=>String(v||"").replace(/\t/g," ")).join("\t")));
+  return {name:base+".txt",text:"\uFEFF"+lines.join("\r\n"),type:"text/plain;charset=utf-8"};
+}
+async function doExport(fmt,wipe=true,useShare=false){if(!state.items.length){toast("Nog geen nummers");return;}
+  const f=buildExport(fmt);
+  await saveFile(f.name,f.text,f.type,useShare);
+  toast((useShare?"Klaar om op te slaan":("Geëxporteerd ("+fmt+")"))+": "+state.items.length+" nummers");
+  log("Bestand: "+f.name+" ("+state.items.length+")","ok");
+  if(wipe){resetAll();log("Lijst gewist — nieuwe zoektocht.","ok");}}
+
+/* ================= EVENTS ================= */
+$("regio").innerHTML=GROUP_ORDER.map(([k,label])=>{const items=Object.entries(REGIONS).filter(([,v])=>v.kind===k);
+  return items.length?`<optgroup label="${esc(label)}">`+items.map(([id,v])=>`<option value="${id}">${esc(v.label)}</option>`).join("")+`</optgroup>`:"";}).join("");
 $("regio").value="vlaanderen";
+$("net").innerHTML=NETS.map(n=>`<option value="${n?n.slice(0,3).trim():""}">${n||"— geen filter —"}</option>`).join("");
+$("srcgrid").innerHTML=Object.entries(SOURCES).map(([k,v])=>`<label><input type="checkbox" data-s="${k}" ${v.def?"checked":""}>${esc(v.label)}</label>`).join("");
+document.querySelectorAll("#srcgrid input").forEach(c=>{if(c.checked)enabled.add(c.dataset.s);c.onchange=()=>{c.checked?enabled.add(c.dataset.s):enabled.delete(c.dataset.s);};});
+
+document.querySelectorAll(".seg button[data-t]").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".seg button[data-t]").forEach(x=>x.classList.remove("on"));b.classList.add("on");state.target=b.dataset.t;
+  if(state.target==="particulier"){state.cat="particulier";}else if(state.target==="zakelijk"){state.cat="zakelijk";}else{state.cat="alles";}
+  state.osmExtra=(state.target==="zorg")?`["amenity"~"^(pharmacy|doctors|clinic|hospital|dentist|veterinary|nursing_home)$"]`:"";
+  document.querySelectorAll(".seg button[data-c]").forEach(x=>x.classList.toggle("on",x.dataset.c===state.cat));
+});
 document.querySelectorAll(".seg button[data-m]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".seg button[data-m]").forEach(x=>x.classList.remove("on"));b.classList.add("on");state.mode=b.dataset.m;});
+$("net").onchange=()=>state.net=$("net").value;
 $("btnStart").onclick=run;
 $("btnStop").onclick=()=>{state.abort=true;if(state.ctrl)state.ctrl.abort();log("Stop…","warn");};
-$("btnExport").onclick=doExport;
+$("btnExportCsv").onclick=()=>doExport("csv",true,false);
+$("btnExportTxt").onclick=()=>doExport("txt",true,false);
+$("btnShare").onclick=()=>doExport($("autoFmt").value,true,true);
 $("btnClear").onclick=()=>{resetAll();log("Gewist.","ok");};
 $("btnTest").onclick=testAll;
 $("btnAdv").onclick=()=>$("advPanel").classList.toggle("hide");
-$("tSites").onclick=()=>{adv.sites=!adv.sites;$("tSites").classList.toggle("on",adv.sites);};
-$("tDdg").onclick=()=>{adv.ddg=!adv.ddg;$("tDdg").classList.toggle("on",adv.ddg);};
+$("fileIn").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{state.fileTxt=String(r.result||"");log("Bestand geladen ("+f.name+").","ok");};r.readAsText(f);};
+
+/* op gsm automatische download standaard aanzetten */
+if(isMobile)$("autoDl").checked=true;
 
 updateCount();render();
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
