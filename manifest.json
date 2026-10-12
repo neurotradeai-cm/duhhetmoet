@@ -1,6 +1,6 @@
 {
-  "name": "+32 Telefoonnummer Scraper",
-  "short_name": "TelefoonScraper",
+  "name": "+32 Nummerzoeker",
+  "short_name": "Nummerzoeker",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0b1220",
