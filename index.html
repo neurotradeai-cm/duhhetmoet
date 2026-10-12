@@ -1,55 +1,58 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>+32 Telefoonnummer Scraper</title>
-<link rel="manifest" href="manifest.json" />
-<link rel="icon" href="icon.svg" />
-<meta name="theme-color" content="#0b1220" />
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg">
+<meta name="theme-color" content="#0b1220">
 <style>
-  :root{--bg:#0b1220;--panel:#131c2e;--line:#243247;--txt:#e6edf7;--dim:#93a4bd;--acc:#38bdf8;--ok:#22c55e;--warn:#f59e0b;--err:#ef4444}
-  *{box-sizing:border-box}
-  body{margin:0;font:14px/1.45 system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt)}
-  header{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;flex-wrap:wrap;position:sticky;top:0;background:var(--bg);z-index:9}
-  h1{font-size:16px;margin:0;white-space:nowrap}
-  .grow{flex:1}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin:14px}
-  .panel h2{font-size:13px;margin:0 0 10px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
-  label{display:block;font-size:11px;color:var(--dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
-  input,select,textarea,button{font:inherit;color:var(--txt);background:#0d1524;border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
-  textarea{min-height:66px;resize:vertical}
-  button{cursor:pointer;background:#1b2a42;border-color:#2c4160}
-  button:hover{background:#24365a}
-  button.primary{background:var(--acc);color:#04121f;border-color:var(--acc);font-weight:600}
-  button.ok{background:var(--ok);color:#04121f;border-color:var(--ok);font-weight:600}
-  button.danger{background:#3a1a1a;border-color:#5b2626}
-  button:disabled{opacity:.5;cursor:not-allowed}
-  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  .row>button,.row>select{width:auto}
-  .chk{display:flex;align-items:center;gap:7px;font-size:13px}
-  .chk input{width:auto}
-  .srcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}
-  .srcbox{background:#0d1524;border:1px solid var(--line);border-radius:8px;padding:10px}
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
-  .stat{background:#0d1524;border:1px solid var(--line);border-radius:8px;padding:10px}
-  .stat b{display:block;font-size:21px;color:var(--acc)}
-  .stat span{font-size:11px;color:var(--dim)}
-  .bar{height:10px;background:#0d1524;border:1px solid var(--line);border-radius:99px;overflow:hidden;margin-top:10px}
-  .bar>i{display:block;height:100%;width:0;background:var(--acc);transition:width .2s}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px}
-  th{position:sticky;top:0;background:#0f1a2b;cursor:pointer;user-select:none}
-  tbody tr:hover{background:#0f1a2b}
-  .tag{font-size:11px;padding:1px 6px;border-radius:99px;border:1px solid var(--line)}
-  .tag.vast{color:#7dd3fc;border-color:#1e5f80}.tag.mobiel{color:#86efac;border-color:#22603c}
-  .src{font-size:11px;color:var(--acc)}
-  #log{height:190px;overflow:auto;background:#08101c;border:1px solid var(--line);border-radius:8px;padding:8px;font:12px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap}
-  .l-warn{color:var(--warn)}.l-err{color:var(--err)}.l-ok{color:var(--ok)}.l-dim{color:var(--dim)}
-  .pager{display:flex;gap:8px;align-items:center;justify-content:center;margin:10px}
-  .pager button,.pager select{width:auto}
-  .muted{color:var(--dim);font-size:12px}
+:root { --bg:#0b1220; --panel:#131c2e; --line:#243247; --txt:#e6edf7; --dim:#93a4bd; --acc:#38bdf8; --ok:#22c55e; --warn:#f59e0b; --err:#ef4444; }
+*{box-sizing:border-box;}
+body{margin:0;font:14px/1.45 system-ui,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);}
+header{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;flex-wrap:wrap;position:sticky;top:0;background:var(--bg);z-index:9;}
+h1{font-size:16px;margin:0;white-space:nowrap;}
+.grow{flex:1;}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin:14px;}
+.panel h2{font-size:13px;margin:0 0 10px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;}
+.panel h3{font-size:12px;margin:12px 0 8px;color:var(--dim);text-transform:uppercase;letter-spacing:.04em;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;}
+label{display:block;font-size:11px;color:var(--dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;}
+input,select,textarea,button{font:inherit;color:var(--txt);background:#0d1524;border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;}
+textarea{min-height:66px;resize:vertical;}
+button{cursor:pointer;background:#1b2a42;border-color:#2c4160;}
+button:hover{background:#24365a;}
+button.primary{background:var(--acc);color:#04121f;border-color:var(--acc);font-weight:600;}
+button.ok{background:var(--ok);color:#04121f;border-color:var(--ok);font-weight:600;}
+button.danger{background:#3a1a1a;border-color:#5b2626;}
+button:disabled{opacity:.5;cursor:not-allowed;}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.row>button,.row>select{width:auto;}
+.chk{display:flex;align-items:center;gap:7px;font-size:13px;}
+.chk input{width:auto;}
+.srcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;}
+.srcbox{background:#0d1524;border:1px solid var(--line);border-radius:8px;padding:10px;}
+.srcbox.key{border-color:#4a3a12;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;}
+.stat{background:#0d1524;border:1px solid var(--line);border-radius:8px;padding:10px;}
+.stat b{display:block;font-size:21px;color:var(--acc);}
+.stat span{font-size:11px;color:var(--dim);}
+.bar{height:10px;background:#0d1524;border:1px solid var(--line);border-radius:99px;overflow:hidden;margin-top:10px;}
+.bar>i{display:block;height:100%;width:0;background:var(--acc);transition:width .2s;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px;}
+th{position:sticky;top:0;background:#0f1a2b;cursor:pointer;user-select:none;}
+tbody tr:hover{background:#0f1a2b;}
+.tag{font-size:11px;padding:1px 6px;border-radius:99px;border:1px solid var(--line);}
+.tag.vast{color:#7dd3fc;border-color:#1e5f80;}
+.tag.mobiel{color:#86efac;border-color:#22603c;}
+.src{font-size:11px;color:var(--acc);}
+#log{height:190px;overflow:auto;background:#08101c;border:1px solid var(--line);border-radius:8px;padding:8px;font:12px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;}
+.l-warn{color:var(--warn);} .l-err{color:var(--err);} .l-ok{color:var(--ok);} .l-dim{color:var(--dim);}
+.pager{display:flex;gap:8px;align-items:center;justify-content:center;margin:10px;}
+.pager button,.pager select{width:auto;}
+.muted{color:var(--dim);font-size:12px;}
 </style>
 </head>
 <body>
@@ -57,6 +60,7 @@
   <h1>+32 Telefoonnummer Scraper</h1>
   <span class="muted">onbeperkt · vast &amp; mobiel · CSV/TXT</span>
   <span class="grow"></span>
+  <button id="btnNew" style="width:auto">✦ Nieuwe zoektocht</button>
   <button id="btnTest" style="width:auto">⚡ Test</button>
   <button id="btnStart" class="primary" style="width:auto">▶ Start</button>
   <button id="btnStop" class="danger" style="width:auto">■ Stop</button>
@@ -64,15 +68,21 @@
 
 <div class="panel">
   <h2>Bronnen</h2>
+  <h3>Werkt direct — geen key nodig</h3>
   <div class="srcs">
-    <div class="srcbox"><label class="chk"><input type="checkbox" id="srcOsm" checked> OpenStreetMap (Overpass)</label><div class="muted" style="margin-top:6px">Gratis, keyless, onbeperkt.</div></div>
+    <div class="srcbox"><label class="chk"><input type="checkbox" id="srcOsm" checked> OpenStreetMap (Overpass)</label><div class="muted" style="margin-top:6px">Kernbron. Vast &amp; mobiel, keyless.</div></div>
     <div class="srcbox"><label class="chk"><input type="checkbox" id="srcWdt" checked> Wikidata</label><div class="muted" style="margin-top:6px">Bedrijven met telefoonnummer.</div></div>
     <div class="srcbox"><label class="chk"><input type="checkbox" id="srcSites"> Websites uit OSM</label><div class="muted" style="margin-top:6px">Bezoekt website-tags.</div></div>
+    <div class="srcbox"><label class="chk"><input type="checkbox" id="srcDdg"> DuckDuckGo → sites</label><div class="muted" style="margin-top:6px">Zoekt bedrijfssites en leest nummers.</div></div>
+    <div class="srcbox"><label class="chk"><input type="checkbox" id="srcWiki"> Wikipedia (NL/FR)</label><div class="muted" style="margin-top:6px">Haalt nummers uit artikelen.</div></div>
     <div class="srcbox"><label class="chk"><input type="checkbox" id="srcUrls"> Eigen URL-lijst</label><div class="muted" style="margin-top:6px">Plak URL's hieronder.</div></div>
-    <div class="srcbox"><label class="chk"><input type="checkbox" id="srcLinkedin"> LinkedIn</label><div class="muted" style="margin-top:6px">Zoekterm of URL's (proxy).</div></div>
-    <div class="srcbox"><label class="chk"><input type="checkbox" id="srcGoogle"> Google Places</label><div class="muted" style="margin-top:6px">Key nodig.</div></div>
-    <div class="srcbox"><label class="chk"><input type="checkbox" id="srcFsq"> Foursquare</label><div class="muted" style="margin-top:6px">Key nodig.</div></div>
-    <div class="srcbox"><label class="chk"><input type="checkbox" id="srcYelp"> Yelp</label><div class="muted" style="margin-top:6px">Key nodig.</div></div>
+  </div>
+  <h3>Vereist API-key</h3>
+  <div class="srcs">
+    <div class="srcbox key"><label class="chk"><input type="checkbox" id="srcLinkedin"> LinkedIn</label><div class="muted" style="margin-top:6px">Via proxy (geen key).</div></div>
+    <div class="srcbox key"><label class="chk"><input type="checkbox" id="srcGoogle"> Google Places</label><div class="muted" style="margin-top:6px">Key nodig.</div></div>
+    <div class="srcbox key"><label class="chk"><input type="checkbox" id="srcFsq"> Foursquare</label><div class="muted" style="margin-top:6px">Key nodig.</div></div>
+    <div class="srcbox key"><label class="chk"><input type="checkbox" id="srcYelp"> Yelp</label><div class="muted" style="margin-top:6px">Key nodig.</div></div>
   </div>
 </div>
 
@@ -127,6 +137,8 @@
     <div><label>Parallelle requests</label><input id="conc" type="number" value="3"></div>
     <div><label>Wikidata-bereik</label><select id="wdtScope"><option value="Q31" selected>België</option><option value="Q142">Frankrijk</option></select></div>
     <div><label>Wikidata limiet</label><input id="wdtLimit" type="number" value="8000"></div>
+    <div><label>DuckDuckGo zoekterm(en)</label><input id="ddgQuery" placeholder="bv. kapper Gent, restaurant Brugge"></div>
+    <div><label>Wikipedia zoekterm(en)</label><input id="wikiQuery" placeholder="bv. stadhuis Gent"></div>
     <div><label>Google Places key</label><input id="gKey" placeholder="AIza..."></div>
     <div><label>Google zoekterm(en)</label><input id="gQuery" placeholder="restaurant Gent, kapper Brugge"></div>
     <div><label>Foursquare key</label><input id="fKey" placeholder="fsq..."></div>
@@ -157,6 +169,7 @@ https://www.bedrijf.be/contact"></textarea></div>
     <button id="btnImportJson">⬆ JSON importeren</button>
     <button id="btnClear" class="danger">Wissen</button>
   </div>
+  <label class="chk" style="margin-bottom:8px"><input type="checkbox" id="resetAfterExport" checked> Na export de lijst wissen en automatisch een nieuwe zoektocht starten</label>
   <div class="bar"><i id="bar"></i></div>
   <div class="stats" style="margin-top:10px">
     <div class="stat"><b id="sTotal">0</b><span>records</span></div>
@@ -171,13 +184,13 @@ https://www.bedrijf.be/contact"></textarea></div>
 <div class="panel">
   <div class="grid">
     <div><label>Zoeken</label><input id="qFilter" placeholder="naam, straat, gemeente, nummer..."></div>
-    <div><label>Filter bron</label><select id="srcFilter"><option value="">alles</option><option value="osm">OSM</option><option value="wikidata">Wikidata</option><option value="site">Website</option><option value="url">Eigen URL</option><option value="linkedin">LinkedIn</option><option value="google">Google</option><option value="fsq">Foursquare</option><option value="yelp">Yelp</option></select></div>
+    <div><label>Filter bron</label><select id="srcFilter"><option value="">alles</option><option value="osm">OSM</option><option value="wikidata">Wikidata</option><option value="site">Website</option><option value="web">DuckDuckGo</option><option value="wiki">Wikipedia</option><option value="url">Eigen URL</option><option value="linkedin">LinkedIn</option><option value="google">Google</option><option value="fsq">Foursquare</option><option value="yelp">Yelp</option></select></div>
     <div><label>Type nummer</label><select id="typeFilter"><option value="">alles</option><option value="vast">vast</option><option value="mobiel">mobiel</option></select></div>
     <div><label>Sorteren op</label><select id="sortKey"><option value="city" selected>Gemeente</option><option value="street">Straat</option><option value="hn">Huisnummer</option><option value="name">Naam</option><option value="phone">Telefoon</option><option value="source">Bron</option></select></div>
     <div><label>Richting</label><select id="sortDir"><option value="1">Oplopend</option><option value="-1">Aflopend</option></select></div>
   </div>
   <div class="pager">
-    <button id="prev">◀ vorige</button><span id="pageInfo" class="muted">pagina 1</span><button id="next">volgende ▶</button>
+    <button id="prev">◀ vorige</button><span id="pageInfo" class="muted">pagina 1 / 1 — 0 zichtbaar</span><button id="next">volgende ▶</button>
     <select id="pageSize"><option>200</option><option selected>500</option><option>1000</option><option>5000</option></select>
   </div>
   <div style="overflow:auto;max-height:52vh">
@@ -191,7 +204,7 @@ https://www.bedrijf.be/contact"></textarea></div>
   </div>
 </div>
 
-<div class="panel"><label>Log</label><div id="log"></div></div>
+<div class="panel"><label>Log</label><div id="log"><div class="l-ok">[--:--:--] Klaar. Klik Test, dan Start.</div></div></div>
 
 <script>
 "use strict";
@@ -199,11 +212,11 @@ const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
 const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
+/* --- mirrors: osm.ch eruit (gaf lege resultaten voor BE) --- */
 const ENDPOINTS = [
   "https://overpass-api.de/api/interpreter",
   "https://lz4.overpass-api.de/api/interpreter",
   "https://z.overpass-api.de/api/interpreter",
-  "https://overpass.osm.ch/api/interpreter",
   "https://overpass.kumi.systems/api/interpreter"
 ];
 const PROXIES = {
@@ -267,21 +280,27 @@ function log(m,cls=""){ const d=document.createElement("div"); if(cls)d.classNam
 function setBusy(b){ $("btnStart").disabled=b; $("btnTest").disabled=b; $("btnStop").disabled=!b; }
 function progress(p){ $("bar").style.width=Math.max(0,Math.min(100,p))+"%"; }
 
-/* ---- Overpass ---- */
-async function overpass(query, tries=6){
-  let lastErr;
-  for(let a=0;a<tries;a++) for(let i=0;i<ENDPOINTS.length;i++){
-    if(state.abort) throw new Error("abort");
-    const ep=ENDPOINTS[(i+a)%ENDPOINTS.length];
-    try{ state.ctrl=new AbortController();
-      const res=await fetch(ep,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
-        body:"data="+encodeURIComponent(query),signal:state.ctrl.signal});
-      if(!res.ok) throw new Error("HTTP "+res.status);
-      const t=await res.text();
-      if(/runtime error/.test(t)&&/too busy|Dispatcher_Client|timeout/i.test(t)) throw new Error("bezet");
-      const j=JSON.parse(t); if(!j.elements) throw new Error("leeg"); return j;
-    }catch(e){ if(state.abort) throw new Error("abort"); lastErr=e; await sleep(400); }
+/* ---- Overpass (leegte-detectie: probeer andere mirror bij leeg) ---- */
+async function overpass(query, tries=6, wantData=true){
+  let lastErr=null, emptyRes=null;
+  for(let a=0;a<tries;a++){
+    for(let i=0;i<ENDPOINTS.length;i++){
+      if(state.abort) throw new Error("abort");
+      const ep=ENDPOINTS[(i+a)%ENDPOINTS.length];
+      try{ state.ctrl=new AbortController();
+        const res=await fetch(ep,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+          body:"data="+encodeURIComponent(query),signal:state.ctrl.signal});
+        if(!res.ok) throw new Error("HTTP "+res.status);
+        const t=await res.text();
+        if(/runtime error/i.test(t)) throw new Error("bezet");
+        const j=JSON.parse(t); if(!j.elements) throw new Error("leeg");
+        if(wantData && j.elements.length===0){ emptyRes=j; await sleep(150); continue; }
+        return j;
+      }catch(e){ if(state.abort) throw new Error("abort"); lastErr=e; await sleep(300); }
+    }
+    if(emptyRes) return emptyRes;
   }
+  if(emptyRes) return emptyRes;
   throw lastErr || new Error("alle mirrors faalden");
 }
 async function fetchVia(url, firstKey){
@@ -306,9 +325,10 @@ async function apiFetch(url, headers){
 /* ---- queries ---- */
 function qFindArea(){ const p=PRESETS[$("preset").value]; const nm=$("areaName").value.trim()||p.name, al=$("adminLevel").value.trim();
   if(p.rel) return `[out:json][timeout:120];rel(${p.rel});out ids;`;
-  const scope=p.inBE?`area["ISO3166-1"="BE"][admin_level=2]->.b;`:""; const inA=p.inBE?"(area.b)":"";
+  const scope=p.inBE?`area["ISO3166-1"="BE"][admin_level=2]->.b;`:"";
+  const inA=p.inBE?"(area.b)":"";
   return `[out:json][timeout:120];${scope}rel["boundary"="administrative"]["admin_level"="${al}"]["name"~"${nm}",i]${inA};out ids;`; }
-const qChildren=(a,l)=>`[out:json][timeout:300];area(${a})->.a;rel["boundary"="administrative"]["admin_level"]="${l}"](area.a);out tags;`;
+const qChildren=(a,l)=>`[out:json][timeout:300];area(${a})->.a;rel["boundary"="administrative"]["admin_level"="${l}"](area.a);out tags;`;
 function qData(a,to,reqHn){ const h=reqHn?'["addr:housenumber"]':"";
   return `[out:json][timeout:${to}];area(${a})->.a;
 (node[~"^(contact:)?(phone|mobile)$"~"."]${h}(area.a);way[~"^(contact:)?(phone|mobile)$"~"."]${h}(area.a);relation[~"^(contact:)?(phone|mobile)$"~"."]${h}(area.a););out center tags;`; }
@@ -379,7 +399,7 @@ async function runWikidata(){
       log(`Wikidata: +${n} records`,"ok"); return;
     }catch(e){ log("Wikidata mislukt, opnieuw… ("+e.message+")","warn"); await sleep(2000); } }
 }
-/* ---- web ---- */
+/* ---- web scrape ---- */
 async function scrapeUrls(urls, source, firstKey, label){
   let done=0, found=0; const conc=Math.max(1,parseInt($("conc").value,10)||3); let idx=0;
   async function worker(){ while(idx<urls.length && !state.abort){ const u=urls[idx++];
@@ -392,6 +412,40 @@ async function scrapeUrls(urls, source, firstKey, label){
     await sleep(100); } }
   await Promise.all(Array.from({length:conc},worker));
   log(`${label}: klaar — +${found}`,"ok");
+}
+async function runDuckDuckGo(){
+  const raw=$("ddgQuery").value.trim()||$("areaName").value.trim();
+  if(!raw){ log("DuckDuckGo: geen zoekterm","warn"); return; }
+  const terms=raw.split(",").map(s=>s.trim()).filter(Boolean);
+  let urls=[];
+  for(const term of terms){ if(state.abort) return;
+    try{ const q=encodeURIComponent(term+" bedrijf telefoon");
+      const {txt}=await fetchVia("https://html.duckduckgo.com/html/?q="+q,$("proxy").value);
+      const uddg=[...txt.matchAll(/uddg=([^&"']+)/g)].map(m=>{ try{return decodeURIComponent(m[1]);}catch(e){return m[1];} });
+      const direct=[...txt.matchAll(/href="(https?:\/\/[^"]+)"/g)].map(m=>m[1]).filter(u=>!/duckduckgo\.com/.test(u));
+      urls=[...urls,...uddg,...direct];
+    }catch(e){ log("DuckDuckGo "+term+": "+e.message,"warn"); } }
+  urls=[...new Set(urls)].filter(u=>/^https?:\/\//.test(u)&&!/\.(png|jpe?g|svg|gif|css|js|pdf|ico)$/i.test(u))
+    .slice(0,parseInt($("maxSites").value,10)||200);
+  log(`DuckDuckGo: ${urls.length} sites gevonden`);
+  if(!urls.length) return;
+  state.progTotal+=urls.length; await scrapeUrls(urls,"web",$("proxy").value,"DuckDuckGo");
+}
+async function runWikipedia(){
+  const raw=$("wikiQuery").value.trim()||$("areaName").value.trim();
+  if(!raw){ log("Wikipedia: geen zoekterm","warn"); return; }
+  const terms=raw.split(",").map(s=>s.trim()).filter(Boolean); const langs=["nl","fr"]; let n=0;
+  for(const term of terms) for(const lang of langs){ if(state.abort) return;
+    try{ const url=`https://${lang}.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(term)}&gsrlimit=25&prop=extracts&explaintext=1&exlimit=20&format=json&origin=*`;
+      const res=await fetch(url,{signal:(state.ctrl=new AbortController()).signal});
+      if(!res.ok) throw new Error("HTTP "+res.status);
+      const j=await res.json(); const pages=j&&j.query&&j.query.pages?Object.values(j.query.pages):[];
+      for(const p of pages){ for(const ph of extractPhones(p.extract||""))
+        if(addItem({ source:"wiki", id:"wiki/"+lang+"/"+p.pageid+"/"+ph, name:p.title||"", phone:ph, type:phoneType(ph),
+          street:"", housenumber:"", postcode:"", city:"", url:"https://"+lang+".wikipedia.org/?curid="+p.pageid })) n++; }
+      log(`Wikipedia ${lang} "${term}": totaal ${n}`,"dim");
+    }catch(e){ log(`Wikipedia ${lang} "${term}": ${e.message}`,"warn"); } }
+  log(`Wikipedia: +${n}`,"ok");
 }
 async function runGoogle(){
   const key=$("gKey").value.trim(); const terms=$("gQuery").value.split(",").map(s=>s.trim()).filter(Boolean);
@@ -478,6 +532,8 @@ function updateStats(){ const vast=state.items.filter(x=>x.type==="vast").length
   $("sPhones").textContent=new Set(state.items.map(x=>normPhone(x.phone)).filter(Boolean)).size.toLocaleString("nl-NL");
   $("sStreets").textContent=new Set(state.items.map(x=>(x.street||"").toLowerCase()).filter(Boolean)).size.toLocaleString("nl-NL");
   $("sFail").textContent=state.failed.length; }
+function resetAll(){ state.items=[]; state.seen.clear(); state.failed=[]; state.prog=0; state.progTotal=1;
+  view.page=0; save(); updateStats(); render(); progress(0); }
 
 /* ---- run ---- */
 async function run(){
@@ -491,6 +547,8 @@ async function run(){
         if($("srcSites").checked && !state.abort){
           const sites=[...new Set(state.items.filter(x=>x.source==="osm"&&x.url).map(x=>x.url))].filter(u=>/^https?:\/\//.test(u)).slice(0,parseInt($("maxSites").value,10)||200);
           state.progTotal+=sites.length; if(sites.length) await scrapeUrls(sites,"site",$("proxy").value,"Websites"); }
+        if($("srcDdg").checked && !state.abort){ try{ await runDuckDuckGo(); }catch(e){} }
+        if($("srcWiki").checked && !state.abort){ try{ await runWikipedia(); }catch(e){} }
         if($("srcUrls").checked && !state.abort){
           const urls=$("urlList").value.split(/\s*\n\s*/).map(s=>s.trim()).filter(u=>/^https?:\/\//.test(u));
           state.progTotal+=urls.length; if(urls.length) await scrapeUrls(urls,"url",$("urlsViaJina").checked?"jina":$("proxy").value,"URL's"); }
@@ -539,16 +597,20 @@ function csvOf(list,sep){ const lines=[HEAD.join(sep)];
 const txtOf=l=>l.map(x=>[x.name,(x.street+" "+x.housenumber).trim(),(x.postcode+" "+x.city).trim(),toPlus32(x.phone),x.url].filter(Boolean).join(" | ")).join("\r\n");
 function hnOnly(l){ const s=new Set(); l.forEach(x=>{ if(x.housenumber) s.add((x.city?x.city+" ":"").concat(x.street||""," ",x.housenumber)); }); return [...s].sort((a,b)=>a.localeCompare(b,"nl")).join("\r\n"); }
 function doExport(){ const f=$("expFormat").value, list=filtered();
+  if(!list.length){ log("Niets te exporteren (0 records).","warn"); }
   if(f==="csv;") download("telefoonnummers_be.csv",csvOf(list,";"),"text/csv;charset=utf-8");
   else if(f==="csv,") download("telefoonnummers_be_komma.csv",csvOf(list,","),"text/csv;charset=utf-8");
   else if(f==="txt") download("telefoonnummers_be.txt",txtOf(list),"text/plain;charset=utf-8");
   else if(f==="txt_hn") download("huisnummers_be.txt",hnOnly(list),"text/plain;charset=utf-8");
-  else download("backup.json",JSON.stringify(list,null,1),"application/json"); }
+  else download("backup.json",JSON.stringify(list,null,1),"application/json");
+  log(`Geëxporteerd: ${list.length} records.`,"ok");
+  if($("resetAfterExport").checked){ resetAll(); log("Lijst gewist — start je volgende zoektocht.","ok"); } }
 
 /* ---- events ---- */
 $("btnStart").onclick=run; $("btnTest").onclick=testAll; $("btnExport").onclick=doExport;
+$("btnNew").onclick=()=>{ state.abort=true; resetAll(); log("Nieuwe zoektocht — lege lijst.","ok"); };
 $("btnStop").onclick=()=>{ state.abort=true; if(state.ctrl)state.ctrl.abort(); log("Stop...","warn"); };
-$("btnClear").onclick=()=>{ if(confirm("Alles wissen?")){ state.items=[]; state.seen.clear(); state.failed=[]; save(); updateStats(); render(); } };
+$("btnClear").onclick=()=>{ if(confirm("Alles wissen?")){ resetAll(); log("Gewist.","ok"); } };
 $("btnExportMob").onclick=()=>download("mobiel_be.csv",csvOf(filtered().filter(x=>x.type==="mobiel"&&x.name),";"),"text/csv;charset=utf-8");
 $("btnRetry").onclick=async()=>{ if(!state.failed.length){ log("Geen mislukte chunks.","dim"); return; }
   if(state.running) return; state.running=true; setBusy(true);
